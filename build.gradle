@@ -1,0 +1,18 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+version = '1.0'
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	testCompile 'junit:junit:4.8.2'
+}
+
+test {
+	systemProperties 'file.encoding': 'UTF-8'
+}
+

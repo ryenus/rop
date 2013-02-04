@@ -41,7 +41,7 @@ public class OptionParserTest {
 		assertFalse(p.f == 0.2f);
 		assertFalse(p.i == 8);
 		assertFalse(p.l == 15L);
-		assertFalse(p.s == 32767);
+		assertFalse(p.s == Short.MIN_VALUE);
 
 		String[] args = parser.parse("--boolean --byte 1 --char a --double 0.1 --float 0.2 --int 010 --long 0xf --short -32768".split("\\s+"));
 
@@ -73,7 +73,7 @@ public class OptionParserTest {
 		assertEquals(null, o.file);
 		assertEquals(null, o.path);
 
-		String[] args = parser.parse("-b -B 1 -c a -d 0.1 -F 0.2 -i 010 -l 0xf -S -32768 -s abc -f src -p src/main".split("\\s+"));
+		String[] args = parser.parse("-bBcdFilSsfp 1 a 0.1 0.2 010 0xf -32768 abc src src/main".split("\\s+"));
 
 		assertTrue(o.b);
 		assertTrue(o.bt == 1);

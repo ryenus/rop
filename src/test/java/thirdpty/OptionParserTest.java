@@ -2,6 +2,7 @@ package thirdpty;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -82,24 +83,70 @@ public class OptionParserTest {
 		assertTrue(o.f == 0.2f);
 		assertTrue(o.i == 8);
 		assertTrue(o.l == 15L);
+		assertTrue(o.s == Short.MIN_VALUE);
 		assertEquals("abc", o.str);
 		assertEquals(new File("src"), o.file);
 		assertEquals(Paths.get("src", "main"), o.path);
 
 		assertEquals(0, args.length);
 	}
+
+	@Test
+	public void subcommands() {
+		parser = new OptionParser(PrimitiveFields.class, ObjectFields.class, PrivateConstructor.class);
+		PrimitiveFields p = parser.get(PrimitiveFields.class);
+		ObjectFields o = parser.get(ObjectFields.class);
+		PrivateConstructor c = parser.get(PrivateConstructor.class);
+
+		assertFalse(p.b);
+		assertFalse(p.bt == 1);
+		assertFalse(p.c == 'a');
+
+		assertEquals(null, o.d);
+		assertEquals(null, o.f);
+		assertEquals(null, o.i);
+		assertEquals(null, o.l);
+		assertEquals(null, o.s);
+
+		String[] args = parser.parse("-bBc 1 a load -dF 0.1 0.2 con -ilS -010 0xf -32768".split("\\s+"));
+
+		assertTrue(p.b);
+		assertTrue(p.bt == 1);
+		assertTrue(p.c == 'a');
+
+		assertTrue(o.d == 0.1d);
+		assertTrue(o.f == 0.2f);
+		assertTrue(o.i == -8);
+		assertTrue(o.l == 15L);
+		assertTrue(o.s == Short.MIN_VALUE);
+
+		// command c is taken as a plain parameter, as it comes at 3rd in the args
+		assertEquals(1, args.length);
+		assertEquals(c.getClass().getAnnotation(Command.class).name(), args[0]);
+	}
+
+	@Test
+	public void callingRun() {
+		CallingRun r = new CallingRun();
+		parser = new OptionParser(r);
+		assertEquals(0, r.i);
+		parser.parse("-i 9".split("\\s+"));
+		// actually r.i was set to 9 first, but was then set to 10 in its run() method
+		assertNotSame(9, r.i);
+		assertEquals(10, r.i);
+	}
 }
 
 class AnnotationMissing { // don't do this
 }
 
-@Command(description = "")
+@Command(name = "con", description = "")
 class PrivateConstructor {
 	private PrivateConstructor() { // this is fine
 	}
 }
 
-@Command(description = "")
+@Command(name = "add", description = "")
 class PrimitiveFields {
 	@Option(description = "", opt = { "-b", "--boolean" })
 	boolean b;
@@ -119,7 +166,7 @@ class PrimitiveFields {
 	short s;
 }
 
-@Command(description = "")
+@Command(name = "load", description = "")
 class ObjectFields {
 	@Option(description = "", opt = { "-b", "--boolean" })
 	Boolean b;
@@ -143,4 +190,14 @@ class ObjectFields {
 	File file;
 	@Option(description = "", opt = { "-p", "--path" })
 	Path path;
+}
+
+@Command(name = "run", description = "")
+class CallingRun {
+	@Option(description = "", opt = { "-i", "--int" })
+	int i;
+
+	void run(OptionParser parser) {
+		i = 10;
+	}
 }

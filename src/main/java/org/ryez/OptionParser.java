@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -25,19 +26,20 @@ import java.util.Map;
  * @author ryenus
  */
 public class OptionParser {
-	private final Map<Class<?>, Object> pool;
-	private final Map<String, CommandInfo> subs;
+	private final Map<Class<?>, Object> byType;
+	private final Map<String, CommandInfo> byName;
 	private final List<String> rest;
 	private CommandInfo top;
-	private CommandInfo current; // current command holder
+	private CommandInfo sub;
+	private CommandInfo current;
 
 	/**
-	 * Create an {@link OptionParse} instance. It also accepts one or a group
-	 * of, command object(s) or class(es) to be registered with.
+	 * Construct an {@link OptionParse}. It also accepts one or a group of,
+	 * command class(es) or the corresponding instance(s) to be registered with.
 	 */
 	public OptionParser(Object... commands) {
-		this.pool = new HashMap<>();
-		this.subs = new HashMap<>();
+		this.byType = new HashMap<>();
+		this.byName = new HashMap<>();
 		this.rest = new ArrayList<>();
 
 		for (Object command : commands) {
@@ -65,8 +67,8 @@ public class OptionParser {
 	 * @return the {@link OptionParser} instance to support chained invocations
 	 */
 	public OptionParser register(Object command) {
-		Object instance;
 		Class<?> klass;
+		Object instance;
 		if (command instanceof Class) {
 			klass = (Class<?>) command;
 			instance = instantiate(klass);
@@ -75,21 +77,23 @@ public class OptionParser {
 			klass = instance.getClass();
 		}
 
-		pool.put(klass, instance);
+		register(klass, instance);
+		return this;
+	}
 
+	private void register(Class<?> klass, Object instance) {
 		Command cmdAnno = klass.getAnnotation(Command.class);
 		if (cmdAnno == null) {
 			throw new RuntimeException(String.format("Annotation @Command missing on %s", klass.getName()));
 		}
 
-		CommandInfo holder = new CommandInfo(instance, cmdAnno);
+		byType.put(klass, instance);
+		CommandInfo ci = new CommandInfo(instance, cmdAnno);
 		if (top == null) {
-			top = holder;
+			top = ci;
 		} else {
-			subs.put(cmdAnno.name(), holder);
+			byName.put(cmdAnno.name(), ci);
 		}
-
-		return this;
 	}
 
 	private Object instantiate(Class<?> klass) {
@@ -113,39 +117,40 @@ public class OptionParser {
 		if (top == null) {
 			return args; // no command registered. nothing to do
 		}
-		if (!rest.isEmpty()) {
-			rest.clear();
-		}
+
+		rest.clear();
 		current = top;
 
-		ListIterator<String> liter = Arrays.asList(args).listIterator();
-		while (liter.hasNext()) {
-			String arg = liter.next();
-			CommandInfo ci = subs.get(arg);
-			if (ci != null) {
-				current = ci;
-				continue;
+		ListIterator<String> lit = Arrays.asList(args).listIterator();
+		while (lit.hasNext()) {
+			String arg = lit.next();
+			if (sub == null) {
+				CommandInfo ci = byName.get(arg);
+				if (ci != null) {
+					current = sub = ci;
+					continue;
+				}
 			}
 
 			if (arg.equals("--")) { // treat everything else as paramaters
-				while (liter.hasNext()) {
-					rest.add(liter.next());
+				while (lit.hasNext()) {
+					rest.add(lit.next());
 				}
 			} else if (arg.startsWith("--")) {
 				String opt = arg.substring(2);
-				parseOpt(opt, liter, OptionType.LONG);
+				parseOpt(opt, lit, OptionType.LONG);
 			} else if (arg.startsWith("-")) {
 				String[] opts = Strings.split(arg.substring(1));
-				parseOpts(opts, liter, OptionType.SHORT);
+				parseOpts(opts, lit, OptionType.SHORT);
 			} else if (arg.startsWith("+")) {
 				String[] opts = Strings.split(arg.substring(1));
-				parseOpts(opts, liter, OptionType.REVERSE);
+				parseOpts(opts, lit, OptionType.REVERSE);
 			} else {
 				rest.add(arg);
 			}
 		}
 
-		// TODO: call command.run
+		run(top, sub); // call command.run(this)
 
 		return rest.toArray(new String[rest.size()]);
 	}
@@ -209,6 +214,22 @@ public class OptionParser {
 		return value;
 	}
 
+	private void run(CommandInfo... cmds) {
+		for (CommandInfo ci : cmds) {
+			if (ci != null) {
+				try {
+					Method run = ci.command.getClass().getDeclaredMethod("run", OptionParser.class);
+					run.setAccessible(true);
+					run.invoke(ci.command, this);
+				} catch (NoSuchMethodException e) {
+					continue;
+				} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	public <T> void showUsage(T command) {
 		StringBuilder sb = new StringBuilder();
@@ -237,17 +258,24 @@ public class OptionParser {
 
 	@SuppressWarnings("unchecked")
 	public <T> T get(Class<T> klass) {
-		return (T) pool.get(klass);
+		return (T) byType.get(klass);
 	}
 
+	/**
+	 * Annotate a class as Command to use it with {@link OptionParser}.
+	 */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
 	public static @interface Command {
-		String name() default "";
+		String name();
 
 		String description();
 	}
 
+	/**
+	 * Annotate the {@link Command} fields with Option. A default option value
+	 * can be directly set on the annotated field.
+	 */
 	@Target(ElementType.FIELD)
 	@Retention(RetentionPolicy.RUNTIME)
 	public static @interface Option {

@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * A minimal but useful command line option parser. It also supports level-two
  * sub-commands, as with {@code git add}.
- * 
+ *
  * @author ryenus
  */
 public class OptionParser {
@@ -56,14 +56,14 @@ public class OptionParser {
 	/**
 	 * Register a command class or its instance. For a class, an instance will
 	 * be created internally and available via {@link #get(Class)}.
-	 * 
+	 *
 	 * The command registered first is taken as the top command, subsequently
 	 * registered commands are taken as level-two sub-commands.
-	 * 
+	 *
 	 * @param command
 	 *            a command class (or its instance) to be registered, the class
 	 *            must be annotated with {@link Command}
-	 * 
+	 *
 	 * @return the {@link OptionParser} instance to support chained invocations
 	 */
 	public OptionParser register(Object command) {
@@ -109,7 +109,7 @@ public class OptionParser {
 
 	/**
 	 * FIXME
-	 * 
+	 *
 	 * @param args
 	 * @return
 	 */
@@ -132,7 +132,7 @@ public class OptionParser {
 				}
 			}
 
-			if (arg.equals("--")) { // treat everything else as paramaters
+			if (arg.equals("--")) { // treat everything else as parameters
 				while (lit.hasNext()) {
 					rest.add(lit.next());
 				}

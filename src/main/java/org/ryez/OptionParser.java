@@ -1,5 +1,9 @@
 package org.ryez;
 
+import static org.ryez.OptionType.LONG;
+import static org.ryez.OptionType.REVERSE;
+import static org.ryez.OptionType.SHORT;
+
 import java.io.File;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -114,8 +118,8 @@ public class OptionParser {
 	 * @return
 	 */
 	public String[] parse(String[] args) {
-		if (top == null) {
-			return args; // no command registered. nothing to do
+		if (top == null) { // no command registered. nothing to do
+			return args;
 		}
 
 		rest.clear();
@@ -132,19 +136,22 @@ public class OptionParser {
 				}
 			}
 
-			if (arg.equals("--")) { // treat everything else as parameters
+			if (arg.equals(LONG.prefix)) { // treat everything else as parameters
 				while (lit.hasNext()) {
 					rest.add(lit.next());
 				}
-			} else if (arg.startsWith("--")) {
+			} else if (arg.startsWith(LONG.prefix)) {
 				String opt = arg.substring(2);
-				parseOpt(opt, lit, OptionType.LONG);
-			} else if (arg.startsWith("-")) {
-				String[] opts = Strings.split(arg.substring(1));
-				parseOpts(opts, lit, OptionType.SHORT);
-			} else if (arg.startsWith("+")) {
-				String[] opts = Strings.split(arg.substring(1));
-				parseOpts(opts, lit, OptionType.REVERSE);
+				parseOpt(opt, lit, LONG);
+			} else if (arg.startsWith(SHORT.prefix) || arg.startsWith(REVERSE.prefix)) {
+				OptionType type = OptionType.get(arg.substring(0, 1));
+				String opt = arg.substring(1);
+				if (current.map.containsKey(opt)) {
+					parseOpt(opt, lit, type);
+				} else {
+					String[] opts = opt.split("(?!^)");
+					parseOpts(opts, lit, type);
+				}
 			} else {
 				rest.add(arg);
 			}
@@ -170,8 +177,8 @@ public class OptionParser {
 
 			Object value = null;
 			if (fieldType == boolean.class || fieldType == Boolean.class) {
-				value = (optionType != OptionType.REVERSE);
-			} else { // TODO: support arity
+				value = (optionType != REVERSE);
+			} else { // TODO: support arity and password input
 				if (!liter.hasNext()) {
 					throw new IllegalArgumentException(String.format("Argument missing for option '%s%s'", optionType.toString(), option));
 				}

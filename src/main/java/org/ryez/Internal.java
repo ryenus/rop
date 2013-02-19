@@ -19,13 +19,17 @@ class CommandInfo {
 		map = new HashMap<>();
 		Class<? extends Object> klass = command.getClass();
 		for (Field field : klass.getDeclaredFields()) {
+			if (field.isSynthetic()) {
+				continue;
+			}
+
 			Option optAnno = field.getAnnotation(Option.class);
 			if (optAnno == null) {
 				throw new RuntimeException(String.format("Annotation @Option missing on %s.%s", klass.getName(), field.getName()));
 			}
 
 			for (String opt : optAnno.opt()) {
-				map.put(opt.replaceAll("^(-)+", ""), new OptionInfo(field, optAnno));
+				map.put(opt.replaceFirst("^(-)+", ""), new OptionInfo(field, optAnno));
 			}
 		}
 	}

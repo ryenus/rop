@@ -128,6 +128,12 @@ public class OptionParser {
 		ListIterator<String> lit = Arrays.asList(args).listIterator();
 		while (lit.hasNext()) {
 			String arg = lit.next();
+
+			if (arg.equals("--help")) {
+				showHelp();
+				System.exit(0);
+			}
+
 			if (sub == null) {
 				CommandInfo ci = byName.get(arg);
 				if (ci != null) {
@@ -157,7 +163,7 @@ public class OptionParser {
 			}
 		}
 
-		run(top, sub); // call command.run(this)
+		invokeRun(); // call command.run(this)
 
 		return rest.toArray(new String[rest.size()]);
 	}
@@ -221,13 +227,15 @@ public class OptionParser {
 		return value;
 	}
 
-	private void run(CommandInfo... cmds) {
+	private void invokeRun() {
+		CommandInfo[] cmds = new CommandInfo[] { sub, top }; // bottom up
 		for (CommandInfo ci : cmds) {
 			if (ci != null) {
 				try {
 					Method run = ci.command.getClass().getDeclaredMethod("run", OptionParser.class);
 					run.setAccessible(true);
 					run.invoke(ci.command, this);
+					break; // only invoke method run() of the last Command
 				} catch (NoSuchMethodException e) {
 					continue;
 				} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
@@ -237,30 +245,12 @@ public class OptionParser {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T> void showUsage(T command) {
+	private void showHelp() {
 		StringBuilder sb = new StringBuilder();
-		Class<T> klass = (Class<T>) command.getClass();
-		Command annoCmd = klass.getAnnotation(Command.class);
+		sb.append(top.anno.description()).append("\n\n")
+		.append("Mandatory arguments to long options are mandatory for short options too.");
 
-		sb.append(String.format("usage: %s ", annoCmd.name()));
-
-		Field[] fields = klass.getDeclaredFields();
-		for (Field field : fields) {
-			Option annoOpt = field.getAnnotation(Option.class);
-
-			Class<?> fieldType = field.getType();
-			if (Boolean.class.equals(fieldType)) {
-				String[] opts = annoOpt.opt();
-				boolean optional = !annoOpt.required();
-				if (optional) {
-					sb.append('[');
-				}
-				for (String opt : opts) {
-					sb.append(opt).append('|');
-				}
-			}
-		}
+		System.out.println(sb.toString());
 	}
 
 	@SuppressWarnings("unchecked")

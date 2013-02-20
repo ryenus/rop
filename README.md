@@ -66,7 +66,7 @@ char               Character              '\u0000'
                    String (or any object) null
 </pre>
 
-## Built-in Help
+## Built-in Help (WIP)
 
 If option '--help' is present, the parser will:
 

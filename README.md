@@ -68,7 +68,8 @@ char               Character              '\u0000'
 
 ## Built-in Help
 
-If option '--help' is present, the parser will
+If option '--help' is present, the parser will:
+
 1. display help information constructed from the Commands/Options annotations
 2. call System.exit(0)
 

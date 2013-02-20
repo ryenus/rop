@@ -24,9 +24,9 @@ import java.util.ListIterator;
 import java.util.Map;
 
 /**
- * A minimal but useful command line option parser. It also supports level-two
+ * A small command line option parser. It also supports level-two
  * sub-commands, as with {@code git add}.
- *
+ * 
  * @author ryenus
  */
 public class OptionParser {

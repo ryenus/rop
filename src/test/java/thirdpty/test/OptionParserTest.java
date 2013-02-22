@@ -80,6 +80,14 @@ public class OptionParserTest {
 		assertEquals(0, args.length);
 	}
 
+	@Test
+	public void escapedOption() {
+		parser = new OptionParser(PrivateConstructor.class);
+		String[] args = parser.parse("-b \\-i".split("\\s+"));
+		assertEquals(1, args.length);
+		assertEquals("-i", args[0]);
+	}
+
 	@Test(expected = RuntimeException.class)
 	public void missingOptArg() {
 		parser = new OptionParser(PrivateConstructor.class);

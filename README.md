@@ -57,7 +57,7 @@ There might be a customizable type binder available in the future.
 Primitive Types    Wrappers and Others    Default Values
 boolean            Boolean                false
 byte               Byte                   0
-short	             Short                  0
+short              Short                  0
 int                Integer                0
 long               Long                   0L
 float              Float                  0.0f

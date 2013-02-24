@@ -32,7 +32,6 @@ import java.util.Map;
 public class OptionParser {
 	private final Map<Class<?>, Object> byType;
 	private final Map<String, CommandInfo> byName;
-	private final List<String> rest;
 	private CommandInfo top;
 	private CommandInfo sub;
 	private CommandInfo current;
@@ -44,7 +43,6 @@ public class OptionParser {
 	public OptionParser(Object... commands) {
 		this.byType = new HashMap<>();
 		this.byName = new HashMap<>();
-		this.rest = new ArrayList<>();
 
 		for (Object command : commands) {
 			if (command instanceof Collection<?>) {
@@ -122,7 +120,7 @@ public class OptionParser {
 			return args;
 		}
 
-		rest.clear();
+		List<String> rest = new ArrayList<>();
 		current = top;
 
 		ListIterator<String> lit = Arrays.asList(args).listIterator();
@@ -142,7 +140,7 @@ public class OptionParser {
 				}
 			}
 
-			if (arg.equals(LONG.prefix)) { // treat everything else as parameters
+			if (arg.equals("--")) { // treat everything else as parameters
 				while (lit.hasNext()) {
 					rest.add(lit.next());
 				}

@@ -164,7 +164,7 @@ public class OptionParser {
 			}
 		}
 
-		invokeRun(); // call command.run(this)
+		invokeRun(current); // call command.run(this)
 
 		return rest.toArray(new String[rest.size()]);
 	}
@@ -228,21 +228,14 @@ public class OptionParser {
 		return value;
 	}
 
-	private void invokeRun() {
-		CommandInfo[] cmds = new CommandInfo[] { sub, top }; // bottom up
-		for (CommandInfo ci : cmds) {
-			if (ci != null) {
-				try {
-					Method run = ci.command.getClass().getDeclaredMethod("run", OptionParser.class);
-					run.setAccessible(true);
-					run.invoke(ci.command, this);
-					break; // only invoke method run() of the last Command
-				} catch (NoSuchMethodException e) {
-					continue;
-				} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-					throw new RuntimeException(e);
-				}
-			}
+	private void invokeRun(CommandInfo ci) {
+		try {
+			Method run = ci.command.getClass().getDeclaredMethod("run", OptionParser.class);
+			run.setAccessible(true);
+			run.invoke(ci.command, this);
+		} catch (NoSuchMethodException e) {
+		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

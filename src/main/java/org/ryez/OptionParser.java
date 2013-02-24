@@ -117,7 +117,7 @@ public class OptionParser {
 	 */
 	public String[] parse(String[] args) {
 		if (top == null) { // no command registered. nothing to do
-			return args;
+			throw new RuntimeException("Command not registered");
 		}
 
 		List<String> rest = new ArrayList<>();

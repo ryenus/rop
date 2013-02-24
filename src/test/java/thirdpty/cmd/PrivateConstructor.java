@@ -7,10 +7,10 @@ import org.ryez.OptionParser.Option;
 public class PrivateConstructor {
 
 	@Option(description = "", opt = { "-b", "--boolean" })
-	boolean b;
+	public boolean b;
 
 	@Option(description = "", opt = { "-i", "--int" })
-	int i;
+	public int i;
 
 	private PrivateConstructor() { // this is fine
 	}

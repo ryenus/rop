@@ -240,7 +240,7 @@ public class OptionParser {
 	private void showHelp() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append(top.help());
+		sb.append(top.help()).append(String.format("\n      --help %20s display this help and exit", ""));
 
 		for (CommandInfo ci : byName.values()) {
 			sb.append(String.format("\n\nCommand %s\n\n", ci.anno.name())).append(ci.help());

@@ -118,7 +118,7 @@ public class OptionParser {
 	 */
 	public String[] parse(String[] args) {
 		if (top == null) { // no command registered. nothing to do
-			throw new RuntimeException("Command not registered");
+			throw new RuntimeException("No Command registered");
 		}
 
 		List<String> rest = new ArrayList<>();
@@ -164,7 +164,6 @@ public class OptionParser {
 		}
 
 		invokeRun(current); // call command.run(this)
-
 		return rest.toArray(new String[rest.size()]);
 	}
 

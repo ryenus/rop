@@ -45,16 +45,10 @@ public class OptionParserTest {
 		assertEquals("-i", args[0]);
 	}
 
-	@Test(expected = RuntimeException.class)
-	public void commandMissing() {
-		parser = new OptionParser();
-		parser.parse("-- -b".split("\\s+"));
-	}
-
-	@Test(expected = RuntimeException.class)
+	@Test
 	public void showHelp() {
 		parser = new OptionParser(Primitives.class, PrivateConstructor.class, Wrappers.class);
-
+		SecurityManager secMan = System.getSecurityManager();
 		System.setSecurityManager(new SecurityManager() {
 			@Override
 			public void checkExit(int status) {
@@ -72,10 +66,9 @@ public class OptionParserTest {
 		try {
 			parser.parse("--help -b".split("\\s+"));
 		} catch (RuntimeException e) {
-			assertEquals("0", e.getMessage());
-			throw e;
+			assertEquals("0", e.getMessage()); // caught exit code
 		} finally {
-			System.setSecurityManager(null);
+			System.setSecurityManager(secMan);
 			try {
 				baos.flush();
 			} catch (IOException e) {
@@ -83,6 +76,12 @@ public class OptionParserTest {
 			}
 			System.err.println(baos.toString());
 		}
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void commandMissing() {
+		parser = new OptionParser();
+		parser.parse("-- -b".split("\\s+"));
 	}
 
 	@Test(expected = RuntimeException.class)

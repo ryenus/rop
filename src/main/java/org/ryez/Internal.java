@@ -50,7 +50,7 @@ class CommandInfo {
 
 	String help() {
 		StringBuilder sb = new StringBuilder();
-		String cmdDesc = Utils.formatPara(anno.description(), 78, false);
+		String cmdDesc = Utils.formatPara(anno.description(), false);
 		sb.append(cmdDesc);
 
 		HashSet<OptionInfo> opts = new HashSet<OptionInfo>(map.values());
@@ -59,7 +59,7 @@ class CommandInfo {
 			list.add(oi.help());
 		}
 
-		Collections.sort(list, Utils.OPTS_COMPARATOR);
+		Collections.sort(list, Utils.OPT_COMPARATOR);
 
 		for (String string : list) {
 			sb.append("\n").append(string);
@@ -103,9 +103,16 @@ enum OptionType {
 }
 
 class Utils {
-	private static final String PADDING = String.format("%34s", "");
+	private static final String PADDING = String.format("%36s", "");
 
-	static Comparator<String> OPTS_COMPARATOR = new Comparator<String>() {
+	static final Comparator<CommandInfo> CMD_COMPARATOR = new Comparator<CommandInfo>() {
+		@Override
+		public int compare(CommandInfo o1, CommandInfo o2) {
+			return o1.anno.name().compareTo(o2.anno.name());
+		}
+	};
+
+	static final Comparator<String> OPT_COMPARATOR = new Comparator<String>() {
 		@Override
 		public int compare(String s1, String s2) {
 			return strip(s1).compareTo(strip(s2));
@@ -148,15 +155,16 @@ class Utils {
 	}
 
 	static String formatDesc(String desc) {
-		return formatPara(desc, 44, true);
+		return formatPara(desc, true);
 	}
 
-	static String formatPara(String desc, int width, boolean indent) {
+	static String formatPara(String sentence, boolean indent) {
+		int width = indent ? 44 : 80;
+		String padding = indent ? PADDING : "";
 		StringBuilder para = new StringBuilder();
 		StringBuilder line = new StringBuilder();
-		String padding = indent ? PADDING : "";
-		for (String word : desc.split("\\s+")) {
-			if (line.length() + word.length() < width) {
+		for (String word : sentence.split("\\s+")) {
+			if (line.length() + word.length() <= width) {
 				line.append(word).append(' ');
 			} else {
 				para.append(line.deleteCharAt(line.length() - 1)).append("\n").append(padding);

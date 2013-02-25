@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -35,7 +36,6 @@ public class OptionParser {
 	private CommandInfo top;
 	private CommandInfo sub;
 	private CommandInfo current;
-
 	/**
 	 * Construct an {@link OptionParse}. It also accepts one or a group of,
 	 * command class(es) or the corresponding instance(s) to be registered with.
@@ -239,11 +239,14 @@ public class OptionParser {
 
 	private void showHelp() {
 		StringBuilder sb = new StringBuilder();
+		sb.append(top.help());
+		sb.append(String.format("\n      --help %20s display this help and exit", ""));
 
-		sb.append(top.help()).append(String.format("\n      --help %20s display this help and exit", ""));
-
-		for (CommandInfo ci : byName.values()) {
-			sb.append(String.format("\n\nCommand %s\n\n", ci.anno.name())).append(ci.help());
+		List<CommandInfo> cmds = new ArrayList<>(byName.values());
+		Collections.sort(cmds, Utils.CMD_COMPARATOR);
+		for (CommandInfo ci : cmds) {
+			sb.append(String.format("\n\n[Command '%s']\n\n", ci.anno.name()));
+			sb.append(ci.help());
 		}
 
 		System.out.print(sb.toString());

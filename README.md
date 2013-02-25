@@ -49,12 +49,6 @@ public static void main(String[] args) {
 
 ## Supported Field Types and Default Values
 
-String, and all primitive type and their wrapper types are directly supported.
-
-File, Path are supported as well, but not Date/Time yet.
-
-There might be a customizable type binder available in the future.
-
 <pre>
 Types                   Default Values
 boolean                 false
@@ -65,8 +59,12 @@ long                    0L
 float                   0.0f
 double                  0.0d
 char                    '\u0000'
-String/Wrapper/Object  null
+String/Wrapper/Object   null
 </pre>
+
+* String, and all primitive type and their wrapper types are directly supported.
+* File, Path are supported as well, but not Date/Time yet.
+* There might be a customizable type binder available in the future.
 
 As in the above example, a default option value can be directly set with the field. If not set, the option values default to their type default, as specified in http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html
 

@@ -153,7 +153,7 @@ public class OptionParser {
 				if (current.map.containsKey(opt)) {
 					parseOpt(opt, lit, type);
 				} else {
-					String[] opts = opt.split("(?!^)");
+					String[] opts = Utils.split(opt);
 					parseOpts(opts, lit, type);
 				}
 			} else {
@@ -239,8 +239,12 @@ public class OptionParser {
 
 	private void showHelp() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(top.anno.description()).append("\n\n")
-		.append("Mandatory arguments to long options are mandatory for short options too.");
+
+		sb.append(top.help());
+
+		for (CommandInfo ci : byName.values()) {
+			sb.append("\n\n").append(ci.help());
+		}
 
 		System.out.println(sb.toString());
 	}

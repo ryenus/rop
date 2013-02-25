@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -68,7 +67,7 @@ public class OptionParserTest {
 		});
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		System.setOut(new PrintStream(new BufferedOutputStream(baos)));
+		System.setOut(new PrintStream(baos));
 
 		try {
 			parser.parse("--help -b".split("\\s+"));

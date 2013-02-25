@@ -154,7 +154,7 @@ public class OptionParser {
 				if (current.map.containsKey(opt)) {
 					parseOpt(opt, lit, type);
 				} else {
-					String[] opts = Utils.split(opt);
+					String[] opts = Utils.csplit(opt);
 					parseOpts(opts, lit, type);
 				}
 			} else {
@@ -250,7 +250,7 @@ public class OptionParser {
 			sb.append(ci.help(true));
 		}
 
-		sb.append(Utils.formatPara(top.anno.notes(), true));
+		sb.append(Utils.format(top.anno.notes(), true));
 		System.out.print(sb.toString());
 	}
 

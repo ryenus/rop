@@ -50,7 +50,7 @@ class CommandInfo {
 
 	String help(boolean showNotes) {
 		StringBuilder sb = new StringBuilder();
-		String cmdDesc = Utils.formatPara(anno.descriptions(), false);
+		String cmdDesc = Utils.format(anno.descriptions(), false);
 		sb.append(cmdDesc);
 
 		HashSet<OptionInfo> opts = new HashSet<OptionInfo>(map.values());
@@ -65,7 +65,7 @@ class CommandInfo {
 		}
 
 		if (showNotes) {
-			sb.append(Utils.formatPara(anno.notes(), true));
+			sb.append(Utils.format(anno.notes(), true));
 		}
 
 		return sb.toString();
@@ -85,7 +85,7 @@ class OptionInfo {
 
 	String help() {
 		String optsText = Utils.formatOpts(anno.opt());
-		String descText = Utils.formatPara(anno.description(), true);
+		String descText = Utils.format(anno.description(), true);
 		return String.format("%s  %s", optsText, descText);
 	}
 }
@@ -126,11 +126,6 @@ class Utils {
 		}
 	};
 
-	static String[] split(String string) {
-		// split with lookahead pattern '(?!^)' to avoid splitting at '^'
-		return string.split("(?!^)");
-	}
-
 	static String formatOpts(String[] opts) {
 		String shortOpt = null, longOpt = null;
 		for (String opt : opts) {
@@ -157,19 +152,19 @@ class Utils {
 		}
 	}
 
-	static String formatPara(String[] sentences, boolean middle) {
+	static String format(String[] paragraph, boolean enclosed) {
 		StringBuilder sb = new StringBuilder();
-		if (sentences.length > 0) {
-			sb.append(middle ? "\n" : "");
-			for (String sentence : sentences) {
-				sb.append(middle ? "\n" : "");
-				sb.append(formatPara(sentence, false));
-				if (!middle) {
-					sb.append(middle ? "" : "\n");
+		if (paragraph.length > 0) {
+			sb.append(enclosed ? "\n" : "");
+			for (String sentence : paragraph) {
+				sb.append(enclosed ? "\n" : "");
+				sb.append(format(sentence, false));
+				if (!enclosed) {
+					sb.append(enclosed ? "" : "\n");
 				}
 			}
 
-			if (middle) {
+			if (enclosed) {
 				sb.deleteCharAt(sb.length() - 1);
 			}
 		}
@@ -177,12 +172,12 @@ class Utils {
 		return sb.toString();
 	}
 
-	static String formatPara(String sentence, boolean indent) {
+	static String format(String sentence, boolean indent) {
 		int width = indent ? 44 : 80;
 		String padding = indent ? PADDING : "";
 		StringBuilder para = new StringBuilder();
 		StringBuilder line = new StringBuilder();
-		for (String word : sentence.split("(?<!^)\\s+")) {
+		for (String word : wsplit(sentence)) {
 			if (line.length() + word.length() <= width) {
 				line.append(word).append(' ');
 			} else {
@@ -192,5 +187,13 @@ class Utils {
 		}
 
 		return para.append(line.deleteCharAt(line.length() - 1)).toString();
+	}
+
+	static String[] csplit(String string) { // split to chars
+		return string.split("(?!^)"); // look-ahead, do not split at '^'
+	}
+
+	static String[] wsplit(String string) { // split to words
+		return string.split("(?<!^)\\s+"); // look-behind
 	}
 }

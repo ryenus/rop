@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import org.ryez.OptionParser.Command;
 import org.ryez.OptionParser.Option;
 
-@Command(name = "load", description = "")
+@Command(name = "load", description = "The sub-command to demo all the supported wrapper types")
 public class Wrappers {
 	@Option(description = "", opt = { "-b", "--boolean" })
 	Boolean b;

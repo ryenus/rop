@@ -36,6 +36,7 @@ public class OptionParser {
 	private CommandInfo top;
 	private CommandInfo sub;
 	private CommandInfo current;
+
 	/**
 	 * Construct an {@link OptionParse}. It also accepts one or a group of,
 	 * command class(es) or the corresponding instance(s) to be registered with.
@@ -104,7 +105,7 @@ public class OptionParser {
 			implicit.setAccessible(true);
 			return implicit.newInstance();
 		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException
-				| InvocationTargetException e) {
+			| InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -239,16 +240,17 @@ public class OptionParser {
 
 	private void showHelp() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(top.help());
+		sb.append(top.help(false));
 		sb.append(String.format("\n      --help %20s display this help and exit", ""));
 
 		List<CommandInfo> cmds = new ArrayList<>(byName.values());
 		Collections.sort(cmds, Utils.CMD_COMPARATOR);
 		for (CommandInfo ci : cmds) {
 			sb.append(String.format("\n\n[Command '%s']\n\n", ci.anno.name()));
-			sb.append(ci.help());
+			sb.append(ci.help(true));
 		}
 
+		sb.append(Utils.formatPara(top.anno.notes(), true));
 		System.out.print(sb.toString());
 	}
 
@@ -265,7 +267,9 @@ public class OptionParser {
 	public static @interface Command {
 		String name();
 
-		String description();
+		String[] descriptions() default {};
+
+		String[] notes() default {};
 	}
 
 	/**

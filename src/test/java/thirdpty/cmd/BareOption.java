@@ -2,7 +2,7 @@ package thirdpty.cmd;
 
 import org.ryez.OptionParser.Command;
 
-@Command(name = "", description = "")
+@Command(name = "", descriptions = "")
 public class BareOption {
 	int i;
 }

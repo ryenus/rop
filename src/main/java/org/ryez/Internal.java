@@ -40,7 +40,7 @@ class CommandInfo {
 					String key = opt.replaceFirst("^(-)+", "");
 					if (map.containsKey(key)) {
 						throw new RuntimeException(String.format("Cannot use opt '%s' again on field '%s' in class '%s', already used on field '%s'",
-								opt, field.getName(), klass.getName(), map.get(key).field.getName()));
+							opt, field.getName(), klass.getName(), map.get(key).field.getName()));
 					}
 					map.put(key, optionInfo);
 				}
@@ -48,9 +48,9 @@ class CommandInfo {
 		}
 	}
 
-	String help() {
+	String help(boolean showNotes) {
 		StringBuilder sb = new StringBuilder();
-		String cmdDesc = Utils.formatPara(anno.description(), false);
+		String cmdDesc = Utils.formatPara(anno.descriptions(), false);
 		sb.append(cmdDesc);
 
 		HashSet<OptionInfo> opts = new HashSet<OptionInfo>(map.values());
@@ -60,9 +60,12 @@ class CommandInfo {
 		}
 
 		Collections.sort(list, Utils.OPT_COMPARATOR);
-
 		for (String string : list) {
 			sb.append("\n").append(string);
+		}
+
+		if (showNotes) {
+			sb.append(Utils.formatPara(anno.notes(), true));
 		}
 
 		return sb.toString();
@@ -82,7 +85,7 @@ class OptionInfo {
 
 	String help() {
 		String optsText = Utils.formatOpts(anno.opt());
-		String descText = Utils.formatDesc(anno.description());
+		String descText = Utils.formatPara(anno.description(), true);
 		return String.format("%s  %s", optsText, descText);
 	}
 }
@@ -154,8 +157,24 @@ class Utils {
 		}
 	}
 
-	static String formatDesc(String desc) {
-		return formatPara(desc, true);
+	static String formatPara(String[] sentences, boolean middle) {
+		StringBuilder sb = new StringBuilder();
+		if (sentences.length > 0) {
+			sb.append(middle ? "\n" : "");
+			for (String sentence : sentences) {
+				sb.append(middle ? "\n" : "");
+				sb.append(formatPara(sentence, false));
+				if (!middle) {
+					sb.append(middle ? "" : "\n");
+				}
+			}
+
+			if (middle) {
+				sb.deleteCharAt(sb.length() - 1);
+			}
+		}
+
+		return sb.toString();
 	}
 
 	static String formatPara(String sentence, boolean indent) {
@@ -163,7 +182,7 @@ class Utils {
 		String padding = indent ? PADDING : "";
 		StringBuilder para = new StringBuilder();
 		StringBuilder line = new StringBuilder();
-		for (String word : sentence.split("\\s+")) {
+		for (String word : sentence.split("(?<!^)\\s+")) {
 			if (line.length() + word.length() <= width) {
 				line.append(word).append(' ');
 			} else {

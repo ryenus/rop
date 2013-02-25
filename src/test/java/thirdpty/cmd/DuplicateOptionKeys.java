@@ -3,7 +3,7 @@ package thirdpty.cmd;
 import org.ryez.OptionParser.Command;
 import org.ryez.OptionParser.Option;
 
-@Command(description = "A bad command with duplicated opt keys", name = "")
+@Command(descriptions = "A bad command with duplicated opt keys", name = "")
 public class DuplicateOptionKeys {
 	@Option(opt = "-k", description = "A field using option key '-k'")
 	boolean opt1;

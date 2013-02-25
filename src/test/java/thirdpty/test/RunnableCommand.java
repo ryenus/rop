@@ -4,7 +4,7 @@ import org.ryez.OptionParser;
 import org.ryez.OptionParser.Command;
 import org.ryez.OptionParser.Option;
 
-@Command(name = "run", description = "")
+@Command(name = "run", descriptions = "")
 public class RunnableCommand {
 
 	@Option(description = "", opt = { "-b", "--boolean" })

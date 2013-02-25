@@ -13,7 +13,4 @@ public class UnsupportedType {
 
 	@Option(description = "", opt = { "-c", "--cal" })
 	Calendar cal;
-
-	private UnsupportedType() { // this is fine
-	}
 }

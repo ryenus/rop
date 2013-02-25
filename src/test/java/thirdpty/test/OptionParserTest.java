@@ -15,6 +15,7 @@ import org.ryez.OptionParser;
 
 import thirdpty.cmd.BareCommand;
 import thirdpty.cmd.BareOption;
+import thirdpty.cmd.DuplicateOptionKeys;
 import thirdpty.cmd.PrivateConstructor;
 import thirdpty.cmd.UnsupportedType;
 
@@ -118,5 +119,10 @@ public class OptionParserTest {
 	public void badOptType() {
 		parser = new OptionParser(UnsupportedType.class);
 		parser.parse("-c str".split("\\s+"));
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void duplicateOptKey() {
+		parser = new OptionParser(DuplicateOptionKeys.class);
 	}
 }

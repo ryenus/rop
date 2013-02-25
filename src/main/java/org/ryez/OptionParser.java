@@ -157,8 +157,8 @@ public class OptionParser {
 					parseOpts(opts, lit, type);
 				}
 			} else {
-				// TODO: we need a more 'real' unescaping logic
-				rest.add(arg.startsWith("\\") ? arg.substring(1) : arg);
+				// TODO: need 'real' unescaping logic
+				rest.add(arg.startsWith("\\-") ? arg.substring(1) : arg);
 			}
 		}
 

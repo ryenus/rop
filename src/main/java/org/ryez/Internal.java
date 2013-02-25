@@ -16,6 +16,7 @@ class CommandInfo {
 	Object command;
 	Command anno;
 	Map<String, OptionInfo> map;
+
 	CommandInfo(Object command, Command anno) {
 		this.command = command;
 		this.anno = anno;

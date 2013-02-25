@@ -243,10 +243,10 @@ public class OptionParser {
 		sb.append(top.help());
 
 		for (CommandInfo ci : byName.values()) {
-			sb.append("\n\n").append(ci.help());
+			sb.append(String.format("\n\nCommand %s\n\n", ci.anno.name())).append(ci.help());
 		}
 
-		System.out.println(sb.toString());
+		System.out.print(sb.toString());
 	}
 
 	@SuppressWarnings("unchecked")

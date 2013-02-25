@@ -3,10 +3,10 @@ package thirdpty.cmd;
 import org.ryez.OptionParser.Command;
 import org.ryez.OptionParser.Option;
 
-@Command(name = "con", description = "A command to demo that a Command with private no-arg constructor is ok, even if you cannot instantiate it yourself.")
+@Command(name = "con", description = "A command to demo that a Command with private no-arg constructor is ok, even if you cannot directly instantiate it yourself.")
 public class PrivateConstructor {
 
-	@Option(description = "explain what is being done, this is for a command to demo that a Command with private no-arg constructor is ok, even if you cannot instantiate it yourself", opt = {
+	@Option(description = "explain what is being done, this is for a command to demo that a Command with private no-arg constructor is ok, even if you cannot directly instantiate it yourself", opt = {
 			"-b", "--boolean" })
 	public boolean b;
 

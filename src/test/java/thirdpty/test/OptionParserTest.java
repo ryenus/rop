@@ -53,7 +53,7 @@ public class OptionParserTest {
 
 	@Test(expected = RuntimeException.class)
 	public void showHelp() {
-		parser = new OptionParser(PrivateConstructor.class);
+		parser = new OptionParser(PrivateConstructor.class, Primitives.class);
 
 		System.setSecurityManager(new SecurityManager() {
 			@Override

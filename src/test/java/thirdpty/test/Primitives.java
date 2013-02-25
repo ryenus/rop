@@ -3,7 +3,7 @@ package thirdpty.test;
 import org.ryez.OptionParser.Command;
 import org.ryez.OptionParser.Option;
 
-@Command(name = "add", description = "")
+@Command(name = "add", description = "The sub-command to demo all the supported primitive data types")
 class Primitives {
 	@Option(description = "", opt = { "-b", "--boolean" })
 	boolean b;

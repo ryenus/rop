@@ -1,5 +1,7 @@
 # Rop
 
+[![Build Status](https://travis-ci.org/ryenus/rop.png?branch=master)](https://travis-ci.org/ryenus/rop)
+
 Rop is a small command line option parser.
 
 ## Introduction
@@ -45,7 +47,7 @@ public static void main(String[] args) {
 }
 ```
 
-## Supported Field Types
+## Supported Field Types and Default Values
 
 String, and all primitive type and their wrapper types are directly supported.
 
@@ -54,19 +56,21 @@ File, Path are supported as well, but not Date/Time yet.
 There might be a customizable type binder available in the future.
 
 <pre>
-Primitive Types    Wrappers and Others    Default Values
-boolean            Boolean                false
-byte               Byte                   0
-short              Short                  0
-int                Integer                0
-long               Long                   0L
-float              Float                  0.0f
-double             Double                 0.0d
-char               Character              '\u0000'
-                   String (or any object) null
+Types                   Default Values
+boolean                 false
+byte                    0
+short                   0
+int                     0
+long                    0L
+float                   0.0f
+double                  0.0d
+char                    '\u0000'
+String/Wrapper/Object  null
 </pre>
 
-## Built-in Help (WIP)
+As in the above example, a default option value can be directly set with the field. If not set, the option values default to their type default, as specified in http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html
+
+## Built-in Help
 
 If option '--help' is present, the parser will:
 
@@ -86,8 +90,5 @@ If you don't have the time to work on Rop, but found something we should know ab
 ## License
 
 Rop is released under the [MIT license](http://www.opensource.org/licenses/MIT).
-
-## Authors
-## Discuss
 
 ## Related projects

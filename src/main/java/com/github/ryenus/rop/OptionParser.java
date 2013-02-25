@@ -5,6 +5,7 @@ import static com.github.ryenus.rop.OptionType.REVERSE;
 import static com.github.ryenus.rop.OptionType.SHORT;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -107,9 +108,37 @@ public class OptionParser {
 		CommandInfo ci = new CommandInfo(instance, cmdAnno);
 		if (top == null) {
 			top = ci;
+			addHelp();
+		} else {
+			byName.put(cmdAnno.name(), ci);
 		}
 
 		byName.put(cmdName, ci);
+	}
+
+	private void addHelp() {
+		top.map.put("help", new OptionInfo(null, new Option() {
+			@Override public String[] opt() {
+				return new String[] { "--help" };
+			}
+
+			@Override public String description() {
+				return "display this help and exit";
+			}
+
+			@Override public boolean required() {
+				return false;
+			}
+
+			@Override public Class<? extends Annotation> annotationType() {
+				return Option.class;
+			}
+
+			@Override
+			public boolean hidden() {
+				return false;
+			}
+		}));
 	}
 
 	private Object instantiate(Class<?> klass) {
@@ -343,7 +372,6 @@ public class OptionParser {
 	public void showHelp() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(top.help(false));
-		sb.append(String.format("\n      --help %20s display this help and exit", ""));
 
 		List<CommandInfo> cmds = new ArrayList<>(byName.values());
 		cmds.remove(top);

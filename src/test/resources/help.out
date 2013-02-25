@@ -6,10 +6,10 @@ The command to demo all the supported primitive data types
   -b, --boolean                   a bool flag
   -c, --char                      [\u0000, \u65535]
   -d, --double                    +[4.9e-324, 1.7976931348623157e+308]
+      --help                      display this help and exit
   -i, --int                       [0x80000000, 0x7fffffff]
   -l, --long                      [0x8000000000000000L, 0x7fffffffffffffffL]
                                     // -2^63 ~ 2^63 - 1
-      --help                      display this help and exit
 
 [Command 'con']
 

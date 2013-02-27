@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.ryez.OptionParser;
+import org.ryez.OptionParser.Command;
+import org.ryez.OptionParser.Option;
 
 public class UglyCommandTest {
 
@@ -19,4 +21,13 @@ public class UglyCommandTest {
 		assertEquals(8, u.i);
 		assertEquals(2, u.l);
 	}
+}
+
+@Command(name = "", descriptions = "")
+class UglyCommand {
+	@Option(description = "", opt = { "-int" })
+	int i;
+
+	@Option(description = "", opt = { "--long-value" })
+	long l;
 }

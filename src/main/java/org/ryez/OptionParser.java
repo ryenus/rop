@@ -163,8 +163,9 @@ public class OptionParser {
 			}
 		}
 
-		invokeRun(current); // call command.run(this)
-		return rest.toArray(new String[rest.size()]);
+		String[] params = rest.toArray(new String[rest.size()]);
+		invokeRun(current, params); // call command.run(this)
+		return params;
 	}
 
 	private void parseOpts(String[] opts, ListIterator<String> liter, OptionType optionType) {
@@ -226,11 +227,11 @@ public class OptionParser {
 		return value;
 	}
 
-	private void invokeRun(CommandInfo ci) {
+	private void invokeRun(CommandInfo ci, String[] params) {
 		try {
-			Method run = ci.command.getClass().getDeclaredMethod("run", OptionParser.class);
+			Method run = ci.command.getClass().getDeclaredMethod("run", OptionParser.class, String[].class);
 			run.setAccessible(true);
-			run.invoke(ci.command, this);
+			run.invoke(ci.command, this, params);
 		} catch (NoSuchMethodException e) {
 		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			throw new RuntimeException(e);

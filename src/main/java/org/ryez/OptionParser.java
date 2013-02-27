@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * A small command line option parser. It also supports level-two
  * sub-commands, as with {@code git add}.
- * 
+ *
  * @author ryenus
  */
 public class OptionParser {
@@ -58,15 +58,16 @@ public class OptionParser {
 
 	/**
 	 * Register a command class or its instance. For a class, an instance will
-	 * be created internally and available via {@link #get(Class)}.
+	 * be created internally and available via {@link #get(Class)}.<br/>
 	 *
-	 * The command registered first is taken as the top command, subsequently
-	 * registered commands are taken as level-two sub-commands.
+	 * The command registered first is treated as the top command, subsequently
+	 * registered commands are all taken as level-two sub-commands, however,
+	 * level-three sub-commands are not supported by design.
 	 *
 	 * @param command
 	 *            a command class (or its instance) to be registered, the class
 	 *            must be annotated with {@link Command}
-	 *
+	 * 
 	 * @return the {@link OptionParser} instance to support chained invocations
 	 */
 	public OptionParser register(Object command) {
@@ -111,10 +112,33 @@ public class OptionParser {
 	}
 
 	/**
-	 * FIXME
+	 * After registering all {@link Command} classes/objects, invoke this method
+	 * to parse the command line args and populate the {@link Option} fields of
+	 * the registered command objects.
+	 *
+	 * <p>
+	 * If the built-in option {@literal "--help"} is found, the parser will
+	 * generate and display the help information, then call
+	 * {@code System.exit(0)}.
+	 * </p>
+	 *
+	 * <p>
+	 * The active Command, which default to the first registered Command, would
+	 * be changed to the corresponding sub-command when its name is found during
+	 * parsing, which would happen only once. Subseqently found sub-command name
+	 * would be simply treated as a plain arg.
+	 * </p>
+	 *
+	 * <p>
+	 * After parsing, if the active Command has the method
+	 * {@code run(OptionParser, String[])} defined, it will be invoked
+	 * automatically, with the OptionParser object and an array of remaining
+	 * args passed in.
+	 * </p>
 	 *
 	 * @param args
-	 * @return
+	 *            this should be the command line args passed to {@code main}
+	 * @return the rest of args that are not consumed by the parser
 	 */
 	public String[] parse(String[] args) {
 		if (top == null) { // no command registered. nothing to do
@@ -162,6 +186,8 @@ public class OptionParser {
 				rest.add(arg.startsWith("\\-") ? arg.substring(1) : arg);
 			}
 		}
+
+		// TODO: check required args
 
 		String[] params = rest.toArray(new String[rest.size()]);
 		invokeRun(current, params); // call command.run(this)
@@ -254,6 +280,13 @@ public class OptionParser {
 		System.out.print(sb.toString());
 	}
 
+	/**
+	 * After parsing, if given a registered Command class, this method will
+	 * return its instance, with all the parsed option values.
+	 *
+	 * @param klass
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public <T> T get(Class<T> klass) {
 		return (T) byType.get(klass);
@@ -267,8 +300,42 @@ public class OptionParser {
 	public static @interface Command {
 		String name();
 
+		/**
+		 * Command descriptions are automatically included in the help
+		 * information before options list.
+		 *
+		 * <p>
+		 * Using an array of words, each entry would have its own paragraph.
+		 * Additionally, by prefixing an entry with an {@literal '\n'}
+		 * character, a new line would be inserted above it accordingly to
+		 * separate from the previous entry
+		 * </p>
+		 *
+		 * <pre>
+		 * descriptions              result
+		 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		 * {"statement 1",           statement 1
+		 *  "\nstatement 2"}
+		 *                           statement 2
+		 * --------------------------------------
+		 * {"statement 1",           statement 1
+		 *  " indented item A"        indented item A
+		 *  " indented item B"}       indented item B
+		 * </pre>
+		 *
+		 * If a line contains than 80 characters, the line would be
+		 * automatically wrapped near the 80th column.
+		 */
 		String[] descriptions() default {};
 
+		/**
+		 * Command notes are automatically included in the help information
+		 * after options list.
+		 *
+		 * <p>
+		 * As with {@link #descriptions()}, the same trick can be used to
+		 * separate paragraphs
+		 */
 		String[] notes() default {};
 	}
 
@@ -279,8 +346,19 @@ public class OptionParser {
 	@Target(ElementType.FIELD)
 	@Retention(RetentionPolicy.RUNTIME)
 	public static @interface Option {
+		/**
+		 * The option keys, like {@literal '-f'}, {@literal '--file'}
+		 *
+		 * Multiple option keys are supported, but the built-in help information
+		 * would only display the first short option and the first long option
+		 * if there're many.
+		 */
 		String[] opt();
 
+		/**
+		 * A not so long description of this option, also it would be wrapped
+		 * correctly even with an indent of 2 spaces from the second line.
+		 */
 		String description();
 
 		boolean required() default false;

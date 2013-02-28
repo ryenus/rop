@@ -4,9 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Map;
+
 import org.junit.Test;
 import org.ryez.OptionParser;
-import org.ryez.OptionParser.Command;
 
 import thirdpty.cmd.PrivateConstructor;
 
@@ -31,7 +32,8 @@ public class SubCommandTest {
 		assertEquals(null, o.l);
 		assertEquals(null, o.s);
 
-		String[] args = parser.parse("-b -B 1 -c a load -d 0.1 -F 0.2 con -i -010 -l 0xf -S -32768".split("\\s+"));
+		Map<Class<?>, String[]> result = parser.parse("-b -B 1 -c a load -d 0.1 -F 0.2 -i -010 -l 0xf -S -32768 con".split("\\s+"));
+		String[] args = result.get(c.getClass());
 
 		assertTrue(p.b);
 		assertTrue(p.bt == 1);
@@ -43,10 +45,8 @@ public class SubCommandTest {
 		assertTrue(o.l == 15L);
 		assertTrue(o.s == Short.MIN_VALUE);
 
-		// command c is taken as a plain parameter, as it comes at 3rd in the
-		// args
-		assertEquals(1, args.length);
-		assertEquals(c.getClass().getAnnotation(Command.class).name(), args[0]);
+		assertEquals(0, args.length);
+//		assertEquals(c.getClass().getAnnotation(Command.class).name(), args[0]);
 	}
 
 }

@@ -20,9 +20,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A small command line option parser. It also supports level-two
@@ -34,12 +36,11 @@ public class OptionParser {
 	private final Map<Class<?>, Object> byType;
 	private final Map<String, CommandInfo> byName;
 	private CommandInfo top;
-	private CommandInfo sub;
-	private CommandInfo current;
+	private CommandInfo cci;
 
 	/**
 	 * Construct an {@link OptionParse}. It also accepts one or a group of,
-	 * command class(es) or the corresponding instance(s) to be registered with.
+	 * command classes or the corresponding instances to be registered with.
 	 */
 	public OptionParser(Object... commands) {
 		this.byType = new HashMap<>();
@@ -58,16 +59,18 @@ public class OptionParser {
 
 	/**
 	 * Register a command class or its instance. For a class, an instance will
-	 * be created internally and available via {@link #get(Class)}.<br/>
+	 * be created internally and available via {@link #get(Class)}.
 	 *
+	 *<p>
 	 * The command registered first is treated as the top command, subsequently
 	 * registered commands are all taken as level-two sub-commands, however,
 	 * level-three sub-commands are not supported by design.
+	 *</p>
 	 *
 	 * @param command
 	 *            a command class (or its instance) to be registered, the class
 	 *            must be annotated with {@link Command}
-	 * 
+	 *
 	 * @return the {@link OptionParser} instance to support chained invocations
 	 */
 	public OptionParser register(Object command) {
@@ -91,13 +94,19 @@ public class OptionParser {
 			throw new RuntimeException(String.format("Annotation @Command missing on %s", klass.getName()));
 		}
 
+		String cmdName = cmdAnno.name();
+		CommandInfo existingCmd = byName.get(cmdName);
+		if (existingCmd != null) {
+			throw new RuntimeException(String.format("A command named '%s' is already registered by class '%s'", cmdName, existingCmd.command.getClass().getName()));
+		}
+
 		byType.put(klass, instance);
 		CommandInfo ci = new CommandInfo(instance, cmdAnno);
 		if (top == null) {
 			top = ci;
-		} else {
-			byName.put(cmdAnno.name(), ci);
 		}
+
+		byName.put(cmdName, ci);
 	}
 
 	private Object instantiate(Class<?> klass) {
@@ -123,30 +132,28 @@ public class OptionParser {
 	 * </p>
 	 *
 	 * <p>
-	 * The active Command, which default to the first registered Command, would
-	 * be changed to the corresponding sub-command when its name is found during
-	 * parsing, which would happen only once. Subseqently found sub-command name
-	 * would be simply treated as a plain arg.
+	 * All the parsed commands would be collected in a {@link Map},
+	 * with each one's class as key, and it's parameters array as value.
 	 * </p>
 	 *
 	 * <p>
-	 * After parsing, if the active Command has the method
-	 * {@code run(OptionParser, String[])} defined, it will be invoked
-	 * automatically, with the OptionParser object and an array of remaining
-	 * args passed in.
+	 * After parsing, for each parsed command if it has the method
+	 * {@code run(OptionParser, String[])} defined, the method will be invoked
+	 * automatically, with the OptionParser object and its parameters passed in.
 	 * </p>
 	 *
 	 * @param args
 	 *            this should be the command line args passed to {@code main}
 	 * @return the rest of args that are not consumed by the parser
 	 */
-	public String[] parse(String[] args) {
+	public Map<Class<?>, String[]> parse(String[] args) {
 		if (top == null) { // no command registered. nothing to do
 			throw new RuntimeException("No Command registered");
 		}
 
-		List<String> rest = new ArrayList<>();
-		current = top;
+		Map<Class<?>, String[]> cpm = new LinkedHashMap<>();
+		List<String> params = new ArrayList<>();
+		cci = top;
 
 		ListIterator<String> lit = Arrays.asList(args).listIterator();
 		while (lit.hasNext()) {
@@ -157,17 +164,17 @@ public class OptionParser {
 				System.exit(0);
 			}
 
-			if (sub == null) {
-				CommandInfo ci = byName.get(arg);
-				if (ci != null) {
-					current = sub = ci;
-					continue;
-				}
+			CommandInfo ci = byName.get(arg);
+			if (ci != null) {
+				cpm.put(cci.command.getClass(), Utils.listToArray(params));
+				cci = ci;
+				params.clear(); // = new ArrayList<>();
+				continue;
 			}
 
 			if (arg.equals("--")) { // treat everything else as parameters
 				while (lit.hasNext()) {
-					rest.add(lit.next());
+					params.add(lit.next());
 				}
 			} else if (arg.startsWith(LONG.prefix)) {
 				String opt = arg.substring(2);
@@ -175,7 +182,7 @@ public class OptionParser {
 			} else if (arg.startsWith(SHORT.prefix) || arg.startsWith(REVERSE.prefix)) {
 				OptionType type = OptionType.get(arg.substring(0, 1));
 				String opt = arg.substring(1);
-				if (current.map.containsKey(opt)) {
+				if (cci.map.containsKey(opt)) {
 					parseOpt(opt, lit, type);
 				} else {
 					String[] opts = Utils.csplit(opt);
@@ -183,15 +190,24 @@ public class OptionParser {
 				}
 			} else {
 				// TODO: need 'real' unescaping logic
-				rest.add(arg.startsWith("\\-") ? arg.substring(1) : arg);
+				params.add(arg.startsWith("\\-") ? arg.substring(1) : arg);
 			}
 		}
 
 		// TODO: check required args
+		String[] remains = Utils.listToArray(params);
+		cpm.put(cci.command.getClass(), remains);
 
-		String[] params = rest.toArray(new String[rest.size()]);
-		invokeRun(current, params); // call command.run(this)
-		return params;
+		invokeRun(cpm); // call command.run(this)
+		return cpm;
+	}
+
+	private void invokeRun(Map<Class<?>, String[]> cpm) {
+		Set<Class<?>> klasses = cpm.keySet();
+		for (Class<?> klass : klasses) {
+			invokeRun(klass, cpm.get(klass));
+		}
+
 	}
 
 	private void parseOpts(String[] opts, ListIterator<String> liter, OptionType optionType) {
@@ -201,7 +217,7 @@ public class OptionParser {
 	}
 
 	private void parseOpt(String option, ListIterator<String> liter, OptionType optionType) {
-		OptionInfo optionInfo = current.map.get(option);
+		OptionInfo optionInfo = cci.map.get(option);
 		if (optionInfo != null) {
 			Field field = optionInfo.field;
 			field.setAccessible(true);
@@ -218,7 +234,7 @@ public class OptionParser {
 			}
 
 			try {
-				field.set(current.command, value);
+				field.set(cci.command, value);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				throw new RuntimeException(e);
 			}
@@ -253,11 +269,11 @@ public class OptionParser {
 		return value;
 	}
 
-	private void invokeRun(CommandInfo ci, String[] params) {
+	private void invokeRun(Class<?> klass, String[] params) {
 		try {
-			Method run = ci.command.getClass().getDeclaredMethod("run", OptionParser.class, String[].class);
+			Method run = klass.getDeclaredMethod("run", OptionParser.class, String[].class);
 			run.setAccessible(true);
-			run.invoke(ci.command, this, params);
+			run.invoke(get(klass), this, params);
 		} catch (NoSuchMethodException e) {
 		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			throw new RuntimeException(e);
@@ -270,6 +286,7 @@ public class OptionParser {
 		sb.append(String.format("\n      --help %20s display this help and exit", ""));
 
 		List<CommandInfo> cmds = new ArrayList<>(byName.values());
+		cmds.remove(top);
 		Collections.sort(cmds, Utils.CMD_COMPARATOR);
 		for (CommandInfo ci : cmds) {
 			sb.append(String.format("\n\n[Command '%s']\n\n", ci.anno.name()));

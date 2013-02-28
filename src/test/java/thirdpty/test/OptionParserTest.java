@@ -34,7 +34,7 @@ public class OptionParserTest {
 		assertFalse(p.b);
 		assertEquals(0, p.i);
 
-		String[] args = parser.parse("-b -- -i".split("\\s+"));
+		String[] args = parser.parse("-b -- -i".split("\\s+")).get(p.getClass());
 
 		assertTrue(p.b);
 		assertEquals(1, args.length);
@@ -45,7 +45,7 @@ public class OptionParserTest {
 	@Test
 	public void escapedOption() {
 		parser = new OptionParser(PrivateConstructor.class);
-		String[] args = parser.parse("-b \\-i".split("\\s+"));
+		String[] args = parser.parse("-b \\-i".split("\\s+")).get(PrivateConstructor.class);
 		assertEquals(1, args.length);
 		assertEquals("-i", args[0]);
 	}
@@ -104,7 +104,7 @@ public class OptionParserTest {
 	@Test(expected = RuntimeException.class)
 	public void unknownOption() {
 		parser = new OptionParser(PrivateConstructor.class);
-		String[] args = parser.parse("--unknown".split("\\s+"));
+		String[] args = parser.parse("--unknown".split("\\s+")).get(PrivateConstructor.class);
 		assertEquals(0, args.length);
 	}
 

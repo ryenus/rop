@@ -194,4 +194,8 @@ class Utils {
 	static String[] wsplit(String string) { // split to words
 		return string.split("(?<!^)\\s+"); // look-behind
 	}
+
+	static String[] listToArray(List<String> rest) {
+		return rest.toArray(new String[rest.size()]);
+	}
 }

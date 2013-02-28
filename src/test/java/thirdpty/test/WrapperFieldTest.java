@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import org.junit.Test;
 import org.ryez.OptionParser;
@@ -32,7 +33,10 @@ public class WrapperFieldTest {
 		assertEquals(null, w.file);
 		assertEquals(null, w.path);
 
-		String[] args = parser.parse("+b -B 1 -c a -d 0.1 -F 0.2 -i 010 -l 0xf -S -32768 -o obj -s abc -f src -p src/main".split("\\s+"));
+		Map<Class<?>, String[]> result;
+		String[] args = "+b -B 1 -c a -d 0.1 -F 0.2 -i 010 -l 0xf -S -32768 -o obj -s abc -f src -p src/main".split("\\s+");
+		result = parser.parse(args);
+		String[] params = result.get(w.getClass());
 
 		assertTrue(w.b == Boolean.FALSE);
 		assertTrue(w.bt == 1);
@@ -47,6 +51,6 @@ public class WrapperFieldTest {
 		assertEquals(new File("src"), w.file);
 		assertEquals(Paths.get("src", "main"), w.path);
 
-		assertEquals(0, args.length);
+		assertEquals(0, params.length);
 	}
 }

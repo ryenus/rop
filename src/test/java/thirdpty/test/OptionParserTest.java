@@ -85,6 +85,11 @@ public class OptionParserTest {
 		}
 	}
 
+	@Test
+	public void bareOption() {
+		parser = new OptionParser(BareOption.class);
+	}
+
 	@Test(expected = RuntimeException.class)
 	public void commandMissing() {
 		parser = new OptionParser();
@@ -94,11 +99,6 @@ public class OptionParserTest {
 	@Test(expected = RuntimeException.class)
 	public void bareCommand() {
 		parser = new OptionParser(BareCommand.class);
-	}
-
-	@Test(expected = RuntimeException.class)
-	public void bareOption() {
-		parser = new OptionParser(BareOption.class);
 	}
 
 	@Test(expected = RuntimeException.class)

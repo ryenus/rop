@@ -44,10 +44,6 @@ class CommandInfo {
 				}
 			}
 		}
-
-		if (map.isEmpty()) {
-			throw new RuntimeException(String.format("Cannot find any field with @Option annotation in class '%s'", klass.getName()));
-		}
 	}
 
 	String help(boolean showNotes) {

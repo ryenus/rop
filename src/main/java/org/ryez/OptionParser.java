@@ -146,12 +146,12 @@ public class OptionParser {
 	 *            this should be the command line args passed to {@code main}
 	 * @return the rest of args that are not consumed by the parser
 	 */
-	public Map<Class<?>, String[]> parse(String[] args) {
+	public Map<Object, String[]> parse(String[] args) {
 		if (top == null) { // no command registered. nothing to do
 			throw new RuntimeException("No Command registered");
 		}
 
-		Map<Class<?>, String[]> cpm = new LinkedHashMap<>();
+		Map<Object, String[]> cpm = new LinkedHashMap<>();
 		List<String> params = new ArrayList<>();
 		cci = top;
 
@@ -166,7 +166,7 @@ public class OptionParser {
 
 			CommandInfo ci = byName.get(arg);
 			if (ci != null) {
-				cpm.put(cci.command.getClass(), Utils.listToArray(params));
+				cpm.put(cci.command, Utils.listToArray(params));
 				cci = ci;
 				params.clear(); // = new ArrayList<>();
 				continue;
@@ -196,18 +196,17 @@ public class OptionParser {
 
 		// TODO: check required args
 		String[] remains = Utils.listToArray(params);
-		cpm.put(cci.command.getClass(), remains);
+		cpm.put(cci.command, remains);
 
 		invokeRun(cpm); // call command.run(this)
 		return cpm;
 	}
 
-	private void invokeRun(Map<Class<?>, String[]> cpm) {
-		Set<Class<?>> klasses = cpm.keySet();
-		for (Class<?> klass : klasses) {
-			invokeRun(klass, cpm.get(klass));
+	private void invokeRun(Map<Object, String[]> cpm) {
+		Set<Object> cmds = cpm.keySet();
+		for (Object cmd : cmds) {
+			invokeRun(cmd, cpm.get(cmd));
 		}
-
 	}
 
 	private void parseOpts(String[] opts, ListIterator<String> liter, OptionType optionType) {
@@ -269,11 +268,11 @@ public class OptionParser {
 		return value;
 	}
 
-	private void invokeRun(Class<?> klass, String[] params) {
+	private void invokeRun(Object cmd, String[] params) {
 		try {
-			Method run = klass.getDeclaredMethod("run", OptionParser.class, String[].class);
+			Method run = cmd.getClass().getDeclaredMethod("run", OptionParser.class, String[].class);
 			run.setAccessible(true);
-			run.invoke(get(klass), this, params);
+			run.invoke(cmd, this, params);
 		} catch (NoSuchMethodException e) {
 		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			throw new RuntimeException(e);

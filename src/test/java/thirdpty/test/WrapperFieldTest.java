@@ -33,10 +33,10 @@ public class WrapperFieldTest {
 		assertEquals(null, w.file);
 		assertEquals(null, w.path);
 
-		Map<Class<?>, String[]> result;
+		Map<Object, String[]> result;
 		String[] args = "+b -B 1 -c a -d 0.1 -F 0.2 -i 010 -l 0xf -S -32768 -o obj -s abc -f src -p src/main".split("\\s+");
 		result = parser.parse(args);
-		String[] params = result.get(w.getClass());
+		String[] params = result.get(w);
 
 		assertTrue(w.b == Boolean.FALSE);
 		assertTrue(w.bt == 1);

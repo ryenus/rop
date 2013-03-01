@@ -27,8 +27,8 @@ public class PrimitiveFieldTest {
 		assertFalse(p.l == 15L);
 		assertFalse(p.s == Short.MIN_VALUE);
 
-		Map<Class<?>, String[]> result = parser.parse("--boolean --byte 1 --char a --double 0.1 --float 0.2 --int 010 --long 0xf --short -32768 -- -x".split("\\s+"));
-		String[] args = result.get(Primitives.class);
+		Map<Object, String[]> result = parser.parse("--boolean --byte 1 --char a --double 0.1 --float 0.2 --int 010 --long 0xf --short -32768 -- -x".split("\\s+"));
+		String[] args = result.get(p);
 
 		assertTrue(p.b);
 		assertTrue(p.bt == 1);

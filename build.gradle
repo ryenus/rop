@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply from:'https://raw.github.com/breskeby/gradleplugins/master/emmaPlugin/emma.gradle'
+// apply from:'https://raw.github.com/breskeby/gradleplugins/master/emmaPlugin/emma.gradle'
+apply from:'src/test/resources/emma.gradle'
 
 version = '1.0'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'

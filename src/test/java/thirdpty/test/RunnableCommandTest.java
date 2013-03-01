@@ -42,11 +42,15 @@ public class RunnableCommandTest {
 		AnotherRunCommand r0 = new AnotherRunCommand();
 		RunnableCommand r1 = new RunnableCommand();
 		RunnableCommand2 r2 = new RunnableCommand2();
-		parser = new OptionParser(r0, r1, r2);
-		parser.parse("a run1 -bx b run2 c".split("\\s+"));
+		RunnableCommand3 r3 = new RunnableCommand3();
+		RunnableCommand4 r4 = new RunnableCommand4();
+		parser = new OptionParser(r0, r1, r2, r3, r4);
+		parser.parse("a run1 -bx b run2 c run3 run4".split("\\s+"));
 		assertArrayEquals(new String[] {"a"}, r0.params);
 		assertArrayEquals(new String[] {"b"}, r1.params);
 		assertArrayEquals(new String[] {"c"}, r2.params);
+		assertEquals(parser, r3.parser);
+		assertEquals(true, r4.set);
 	}
 }
 
@@ -54,14 +58,13 @@ public class RunnableCommandTest {
 class AnotherRunCommand {
 	String[] params;
 
-	void run(OptionParser parser, String[] remains) {
-		params = remains;
+	void run(OptionParser parser, String[] params) {
+		this.params = params;
 	}
 }
 
 @Command(name = "run1", descriptions = "")
 class RunnableCommand {
-
 	String[] params;
 
 	@Option(description = "", opt = { "-b", "--boolean" })
@@ -73,19 +76,35 @@ class RunnableCommand {
 	@Option(description = "", opt = { "-i", "--int" })
 	int i = 9;
 
-	void run(OptionParser parser, String[] remains) {
+	void run(OptionParser parser, String[] params) {
 		i = 10;
-		params = remains;
+		this.params = params;
 	}
 }
 
-
 @Command(name = "run2", descriptions = "")
 class RunnableCommand2 {
-
 	String[] params;
 
-	void run(OptionParser parser, String[] remains) {
-		params = remains;
+	void run(String[] params) {
+		this.params = params;
+	}
+}
+
+@Command(name = "run3", descriptions = "")
+class RunnableCommand3 {
+	OptionParser parser;
+
+	void run(OptionParser parser) {
+		this.parser = parser;
+	}
+}
+
+@Command(name = "run4", descriptions = "")
+class RunnableCommand4 {
+	boolean set;
+
+	void run() {
+		set = true;
 	}
 }

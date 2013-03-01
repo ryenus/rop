@@ -24,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * A small command line option parser. It also supports level-two
@@ -202,13 +201,6 @@ public class OptionParser {
 		return cpm;
 	}
 
-	private void invokeRun(Map<Object, String[]> cpm) {
-		Set<Object> cmds = cpm.keySet();
-		for (Object cmd : cmds) {
-			invokeRun(cmd, cpm.get(cmd));
-		}
-	}
-
 	private void parseOpts(String[] opts, ListIterator<String> liter, OptionType optionType) {
 		for (String option : opts) {
 			parseOpt(option, liter, optionType);
@@ -268,14 +260,41 @@ public class OptionParser {
 		return value;
 	}
 
-	private void invokeRun(Object cmd, String[] params) {
+	private void invokeRun(Map<Object, String[]> cpm) {
+		try {
+			for (Object cmd : cpm.keySet()) {
+				invokeRun(cmd, cpm.get(cmd));
+			}
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private Object invokeRun(Object cmd, String[] params) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		try {
 			Method run = cmd.getClass().getDeclaredMethod("run", OptionParser.class, String[].class);
 			run.setAccessible(true);
-			run.invoke(cmd, this, params);
+			return run.invoke(cmd, this, params);
 		} catch (NoSuchMethodException e) {
-		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			throw new RuntimeException(e);
+			try {
+				Method run = cmd.getClass().getDeclaredMethod("run", String[].class);
+				run.setAccessible(true);
+				return run.invoke(cmd, (Object) params); //bypass the var-args magic
+			} catch (NoSuchMethodException e1) {
+				try {
+					Method run = cmd.getClass().getDeclaredMethod("run", OptionParser.class);
+					run.setAccessible(true);
+					return run.invoke(cmd, this);
+				} catch (NoSuchMethodException e2) {
+					try {
+						Method run = cmd.getClass().getDeclaredMethod("run");
+						run.setAccessible(true);
+						return run.invoke(cmd);
+					} catch (NoSuchMethodException e3) {
+						return null;
+					}
+				}
+			}
 		}
 	}
 

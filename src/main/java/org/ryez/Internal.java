@@ -187,12 +187,12 @@ class Utils {
 		return para.append(line.deleteCharAt(line.length() - 1)).toString();
 	}
 
-	static String[] csplit(String string) { // split to chars
-		return string.split("(?!^)"); // look-ahead, do not split at '^'
+	static String[] csplit(String word) { // split to chars
+		return word.split("(?!^)"); // look-ahead, do not split at '^'
 	}
 
-	static String[] wsplit(String string) { // split to words
-		return string.split("(?<!^)\\s+"); // look-behind
+	static String[] wsplit(String sentence) { // split to words
+		return sentence.split("(?<!^)\\s+"); // look-behind
 	}
 
 	static String[] listToArray(List<String> rest) {

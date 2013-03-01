@@ -189,7 +189,7 @@ public class OptionParser {
 				}
 			} else {
 				// TODO: need 'real' unescaping logic
-				params.add(arg.startsWith("\\-") ? arg.substring(1) : arg);
+				params.add(arg.startsWith("\\") ? arg.substring(1) : arg);
 			}
 		}
 

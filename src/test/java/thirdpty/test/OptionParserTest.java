@@ -72,17 +72,17 @@ public class OptionParserTest {
 			parser.parse("--help -b".split("\\s+"));
 		} catch (RuntimeException e) {
 			assertEquals("0", e.getMessage()); // caught exit code
-		} finally {
-			System.setSecurityManager(secMan);
-			try {
-				URI uri = this.getClass().getClassLoader().getResource("help.out").toURI();
-				byte[] bytes = Files.readAllBytes(new File(uri).toPath());
-				assertArrayEquals(bytes, baos.toByteArray());
-			} catch (IOException | URISyntaxException e) {
-				throw new RuntimeException(e);
-			}
-			System.err.println(baos.toString());
 		}
+
+		System.setSecurityManager(secMan);
+		try {
+			URI uri = getClass().getClassLoader().getResource("help.out").toURI();
+			byte[] bytes = Files.readAllBytes(new File(uri).toPath());
+			assertArrayEquals(bytes, baos.toByteArray());
+		} catch (IOException | URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+		System.err.println(baos.toString());
 	}
 
 	@Test

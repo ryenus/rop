@@ -165,9 +165,9 @@ public class OptionParser {
 
 			CommandInfo ci = byName.get(arg);
 			if (ci != null) {
-				cpm.put(cci.command, Utils.listToArray(params));
+				cpm.put(cci.command, params.toArray(new String[params.size()]));
 				cci = ci;
-				params.clear(); // = new ArrayList<>();
+				params.clear();
 				continue;
 			}
 
@@ -187,15 +187,13 @@ public class OptionParser {
 					String[] opts = Utils.csplit(opt);
 					parseOpts(opts, lit, type);
 				}
-			} else {
-				// TODO: need 'real' unescaping logic
+			} else { // TODO: need 'real' unescaping logic
 				params.add(arg.startsWith("\\") ? arg.substring(1) : arg);
 			}
 		}
 
 		// TODO: check required args
-		String[] remains = Utils.listToArray(params);
-		cpm.put(cci.command, remains);
+		cpm.put(cci.command, params.toArray(new String[params.size()]));
 
 		invokeRun(cpm); // call command.run(this)
 		return cpm;
@@ -209,29 +207,29 @@ public class OptionParser {
 
 	private void parseOpt(String option, ListIterator<String> liter, OptionType optionType) {
 		OptionInfo optionInfo = cci.map.get(option);
-		if (optionInfo != null) {
-			Field field = optionInfo.field;
-			field.setAccessible(true);
-			Class<?> fieldType = field.getType();
-
-			Object value = null;
-			if (fieldType == boolean.class || fieldType == Boolean.class) {
-				value = (optionType != REVERSE);
-			} else { // TODO: support arity and password input
-				if (!liter.hasNext()) {
-					throw new IllegalArgumentException(String.format("Argument missing for option '%s%s'", optionType.toString(), option));
-				}
-				value = parseValue(fieldType, liter.next());
-			}
-
-			try {
-				field.set(cci.command, value);
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-			optionInfo.set = true;
-		} else {
+		if (optionInfo == null) {
 			throw new IllegalArgumentException(String.format("Unknown option '%s", option));
+		}
+
+		Field field = optionInfo.field;
+		field.setAccessible(true);
+		Class<?> fieldType = field.getType();
+
+		Object value = null;
+		if (fieldType == boolean.class || fieldType == Boolean.class) {
+			value = (optionType != REVERSE);
+		} else { // TODO: support arity and password input
+			if (!liter.hasNext()) {
+				throw new IllegalArgumentException(String.format("Argument missing for option '%s%s'", optionType.toString(), option));
+			}
+			value = parseValue(fieldType, liter.next());
+		}
+
+		try {
+			field.set(cci.command, value);
+			optionInfo.set = true;
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

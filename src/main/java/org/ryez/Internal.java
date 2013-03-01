@@ -150,21 +150,21 @@ class Utils {
 		}
 	}
 
-	static String format(String[] paragraph, boolean enclosed) {
-		StringBuilder sb = new StringBuilder();
-		if (paragraph.length > 0) {
-			sb.append(enclosed ? "\n" : "");
-			for (String sentence : paragraph) {
-				sb.append(enclosed ? "\n" : "");
-				sb.append(format(sentence, false));
-				if (!enclosed) {
-					sb.append(enclosed ? "" : "\n");
-				}
-			}
+	static String format(String[] sentences, boolean enclosed) {
+		if (sentences.length == 0) {
+			return "";
+		}
 
-			if (enclosed) {
-				sb.deleteCharAt(sb.length() - 1);
-			}
+		String prefix = enclosed ? "\n" : "";
+		String suffix = enclosed ? "" : "\n";
+
+		StringBuilder sb = new StringBuilder(prefix);
+		for (String sentence : sentences) {
+			sb.append(prefix).append(format(sentence, false)).append(suffix);
+		}
+
+		if (enclosed) {
+			sb.deleteCharAt(sb.length() - 1);
 		}
 
 		return sb.toString();
@@ -193,9 +193,5 @@ class Utils {
 
 	static String[] wsplit(String sentence) { // split to words
 		return sentence.split("(?<!^)\\s+"); // look-behind
-	}
-
-	static String[] listToArray(List<String> rest) {
-		return rest.toArray(new String[rest.size()]);
 	}
 }

@@ -130,4 +130,22 @@ public class OptionParserTest {
 	public void duplicateOptKey() {
 		parser = new OptionParser(DuplicateOptionKeys.class);
 	}
+
+	@Test(expected = RuntimeException.class)
+	public void requiredOptNotSet() {
+		parser = new OptionParser(RunnableCommand.class);
+		parser.parse("-b -i 1".split("\\s+"));
+	}
+
+	@Test
+	public void dupCommandAsParam() {
+		RunnableCommand r = new RunnableCommand();
+		parser = new OptionParser(r);
+		parser.parse("-b run1 -x -i 1".split("\\s+"));
+		assertEquals(true, r.b);
+		assertEquals(true, r.x);
+		assertEquals(1, r.xc);
+		assertArrayEquals(new String[] { "run1" }, r.params);
+	}
+
 }

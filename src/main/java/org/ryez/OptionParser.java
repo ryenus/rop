@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -40,6 +41,8 @@ public class OptionParser {
 	/**
 	 * Construct an {@link OptionParse}. It also accepts one or a group of,
 	 * command classes or the corresponding instances to be registered with.
+	 *
+	 * @see {@link #register(Object)}
 	 */
 	public OptionParser(Object... commands) {
 		this.byType = new HashMap<>();
@@ -120,32 +123,48 @@ public class OptionParser {
 	}
 
 	/**
+	 * Parse the command line args, but at most support one sub-command.
+	 *
+	 * @param args
+	 *            this should be the command line args passed to {@code main}
+	 * @return a map consists of the recognized command and their params
+	 *
+	 * @see {@link #parse(String[], boolean)}
+	 */
+	public Map<Object, String[]> parse(String[] args) {
+		return parse(args, false);
+	}
+
+	/**
 	 * After registering all {@link Command} classes/objects, invoke this method
 	 * to parse the command line args and populate the {@link Option} fields of
 	 * the registered command objects.
-	 *
+	 * 
 	 * <p>
 	 * If the built-in option {@literal "--help"} is found, the parser will
 	 * generate and display the help information, then call
 	 * {@code System.exit(0)}.
 	 * </p>
-	 *
+	 * 
 	 * <p>
-	 * All the parsed commands would be collected in a {@link Map},
-	 * with each one's class as key, and it's parameters array as value.
+	 * All the parsed commands would be collected in a {@link Map}, with each
+	 * one's class as key, and it's parameters array as value.
 	 * </p>
-	 *
+	 * 
 	 * <p>
 	 * After parsing, for each parsed command if it has the method
 	 * {@code run(OptionParser, String[])} defined, the method will be invoked
 	 * automatically, with the OptionParser object and its parameters passed in.
 	 * </p>
-	 *
+	 * 
 	 * @param args
 	 *            this should be the command line args passed to {@code main}
-	 * @return the rest of args that are not consumed by the parser
+	 * @param multi
+	 *            whether to support multiple sub-commands, like with
+	 *            {@literal `mvn clean test`}
+	 * @return a map consists of the recognized command and their params
 	 */
-	public Map<Object, String[]> parse(String[] args) {
+	public Map<Object, String[]> parse(String[] args, boolean multi) {
 		if (top == null) { // no command registered. nothing to do
 			throw new RuntimeException("No Command registered");
 		}
@@ -165,9 +184,14 @@ public class OptionParser {
 
 			CommandInfo ci = byName.get(arg);
 			if (ci != null) {
-				cpm.put(cci.command, params.toArray(new String[params.size()]));
-				cci = ci;
-				params.clear();
+				if (ci == cci || cpm.containsKey(ci.command) || (!multi && cpm.size() > 0)) {
+					params.add(arg);
+				} else {
+					push(cpm, cci, params);
+					params.clear();
+					cci = ci;
+				}
+
 				continue;
 			}
 
@@ -192,11 +216,19 @@ public class OptionParser {
 			}
 		}
 
-		// TODO: check required args
-		cpm.put(cci.command, params.toArray(new String[params.size()]));
+		push(cpm, cci, params);
 
 		invokeRun(cpm); // call command.run(this)
 		return cpm;
+	}
+
+	void push(Map<Object, String[]> cpm, CommandInfo ci, List<String> params) {
+		cpm.put(ci.command, params.toArray(new String[params.size()]));
+		for (OptionInfo oi : new HashSet<>(ci.map.values())) {
+			if (oi.anno.required() && !oi.set) {
+				throw new RuntimeException(String.format("Required option not found for field %s", oi.field));
+			}
+		}
 	}
 
 	private void parseOpts(String[] opts, ListIterator<String> liter, OptionType optionType) {
@@ -220,7 +252,7 @@ public class OptionParser {
 			value = (optionType != REVERSE);
 		} else { // TODO: support arity and password input
 			if (!liter.hasNext()) {
-				throw new IllegalArgumentException(String.format("Argument missing for option '%s%s'", optionType.toString(), option));
+				throw new IllegalArgumentException(String.format("Argument missing for option '%s%s'", optionType.prefix, option));
 			}
 			value = parseValue(fieldType, liter.next());
 		}
@@ -327,6 +359,15 @@ public class OptionParser {
 
 	/**
 	 * Annotate a class as Command to use it with {@link OptionParser}.
+	 *
+	 * <p>
+	 * The desciptions and notes will be used to make up the help information.
+	 * When crafted well, the descriptions and/or notes could span multiple
+	 * paragraphs, as well as indented list items, thus to provide a well
+	 * explained help.
+	 * </p
+	 *
+	 * @see {@link Command#descriptions()}
 	 */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
@@ -338,22 +379,22 @@ public class OptionParser {
 		 * information before options list.
 		 *
 		 * <p>
-		 * Using an array of words, each entry would have its own paragraph.
-		 * Additionally, by prefixing an entry with an {@literal '\n'}
-		 * character, a new line would be inserted above it accordingly to
-		 * separate from the previous entry
+		 * With an array of sentences, by prefixing an item with a {@code '\n'}
+		 * character, a new line would be inserted above it to demarcate from
+		 * the previous one hence make it a new paragraph.
 		 * </p>
 		 *
 		 * <pre>
-		 * descriptions              result
-		 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		 * {"statement 1",           statement 1
+		 * descriptions                         result
+		 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		 * {"statement 1",                      statement 1
 		 *  "\nstatement 2"}
-		 *                           statement 2
-		 * --------------------------------------
-		 * {"statement 1",           statement 1
-		 *  " indented item A"        indented item A
-		 *  " indented item B"}       indented item B
+		 *                                      statement 2
+		 * -------------------------------------------------------------------
+		 * {"statement 1",                      statement 1
+		 *  " indented item A"                   indented item A
+		 *  "\n indented & demarcated item B"}
+		 *                                       indented & demarcated item B
 		 * </pre>
 		 *
 		 * If a line contains than 80 characters, the line would be
@@ -367,7 +408,7 @@ public class OptionParser {
 		 *
 		 * <p>
 		 * As with {@link #descriptions()}, the same trick can be used to
-		 * separate paragraphs
+		 * demarcate paragraphs
 		 */
 		String[] notes() default {};
 	}
@@ -389,8 +430,8 @@ public class OptionParser {
 		String[] opt();
 
 		/**
-		 * A not so long description of this option, also it would be wrapped
-		 * correctly even with an indent of 2 spaces from the second line.
+		 * A not so long description of the option, it would be wrapped
+		 * correctly with even a 2-space indent starting from the second line.
 		 */
 		String description();
 

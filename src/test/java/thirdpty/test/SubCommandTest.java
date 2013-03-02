@@ -32,7 +32,8 @@ public class SubCommandTest {
 		assertEquals(null, o.l);
 		assertEquals(null, o.s);
 
-		Map<Object, String[]> result = parser.parse("-b -B 1 -c a load -d 0.1 -F 0.2 -i -010 -l 0xf -S -32768 con".split("\\s+"));
+		String[] osArgs = "-b -B 1 -c a load -d 0.1 -F 0.2 -i -010 -l 0xf -S -32768 con".split("\\s+");
+		Map<Object, String[]> result = parser.parse(osArgs, true);
 		String[] args = result.get(c);
 
 		assertTrue(p.b);
@@ -46,7 +47,6 @@ public class SubCommandTest {
 		assertTrue(o.s == Short.MIN_VALUE);
 
 		assertEquals(0, args.length);
-//		assertEquals(c.getClass().getAnnotation(Command.class).name(), args[0]);
 	}
 
 }

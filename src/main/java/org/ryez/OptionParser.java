@@ -436,5 +436,10 @@ public class OptionParser {
 		String description();
 
 		boolean required() default false;
+
+		/**
+		 * Hide the option from showing up in help information
+		 */
+		boolean hidden() default false;
 	}
 }

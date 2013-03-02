@@ -75,6 +75,8 @@ public class OptionParserTest {
 		}
 
 		System.setSecurityManager(secMan);
+		System.err.println(baos.toString());
+
 		try {
 			URI uri = getClass().getClassLoader().getResource("help.out").toURI();
 			byte[] bytes = Files.readAllBytes(new File(uri).toPath());
@@ -82,7 +84,6 @@ public class OptionParserTest {
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
-		System.err.println(baos.toString());
 	}
 
 	@Test

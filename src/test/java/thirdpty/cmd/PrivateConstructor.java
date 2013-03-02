@@ -10,7 +10,7 @@ public class PrivateConstructor {
 		"-b", "--boolean" })
 	public boolean b;
 
-	@Option(description = "certain number", opt = { "-i", "--int" })
+	@Option(description = "certain number", opt = { "-i", "--int" }, hidden = true)
 	public int i;
 
 	@Option(description = "certain flag", opt = { "--abcdefghijklmnopqrstuvwxyz0123456" })

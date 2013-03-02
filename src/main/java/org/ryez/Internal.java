@@ -54,7 +54,9 @@ class CommandInfo {
 		HashSet<OptionInfo> opts = new HashSet<OptionInfo>(map.values());
 		List<String> list = new ArrayList<>(opts.size());
 		for (OptionInfo oi : opts) {
-			list.add(oi.help());
+			if (!oi.anno.hidden()) {
+				list.add(oi.help());
+			}
 		}
 
 		Collections.sort(list, Utils.OPT_COMPARATOR);

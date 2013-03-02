@@ -22,7 +22,6 @@ you cannot directly instantiate it yourself
                                     command to demo that a Command with private
                                     no-arg constructor is ok, even if you cannot
                                     directly instantiate it yourself
-  -i, --int                       certain number
   -m                              another flag
 
 [Command 'load']

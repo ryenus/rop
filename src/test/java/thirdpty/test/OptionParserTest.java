@@ -69,6 +69,7 @@ public class OptionParserTest {
 		});
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream stdout = System.out;
 		System.setOut(new PrintStream(baos));
 
 		try {
@@ -77,6 +78,7 @@ public class OptionParserTest {
 			assertEquals("0", e.getMessage()); // caught exit code
 		}
 
+		System.setOut(stdout);
 		System.setSecurityManager(secMan);
 		System.err.println(baos.toString());
 

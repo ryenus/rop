@@ -29,7 +29,7 @@ class CommandInfo {
 				if (optAnno != null) {
 					String[] opts = optAnno.opt();
 					if (opts.length == 0) {
-						throw new RuntimeException(String.format("@Option.opt is empty on field '%s' in class '%s'", field.getName(), klass.getName()));
+						throw new RuntimeException(String.format("@Option.opt is empty for '%s'", field));
 					}
 
 					OptionInfo optionInfo = new OptionInfo(field, optAnno);

@@ -4,7 +4,11 @@ import static com.github.ryenus.rop.OptionType.LONG;
 import static com.github.ryenus.rop.OptionType.REVERSE;
 import static com.github.ryenus.rop.OptionType.SHORT;
 
+import java.io.BufferedReader;
+import java.io.Console;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -250,9 +254,11 @@ public class OptionParser {
 		Class<?> fieldType = field.getType();
 
 		Object value = null;
-		if (fieldType == boolean.class || fieldType == Boolean.class) {
+		if (optionInfo.anno.secret()) {
+			value = readSecret(optionInfo.anno.prompt());
+		} else if (fieldType == boolean.class || fieldType == Boolean.class) {
 			value = (optionType != REVERSE);
-		} else { // TODO: support arity and password input
+		} else { // TODO: support arity
 			if (!liter.hasNext()) {
 				throw new IllegalArgumentException(String.format("Argument missing for option '%s%s'", optionType.prefix, option));
 			}
@@ -264,6 +270,29 @@ public class OptionParser {
 			optionInfo.set = true;
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	private static char[] readSecret(String prompt) {
+		Console console = System.console();
+		if (console != null) {
+			char[] password = null;
+			while (password == null) {
+				password = console.readPassword("%s", prompt);
+			}
+			return password;
+		}
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			String line = null;
+			while (line == null) {
+				System.out.print(prompt);
+				line = br.readLine();
+			}
+			return line.toCharArray();
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot read standard input");
 		}
 	}
 
@@ -454,5 +483,15 @@ public class OptionParser {
 		 * Hide the option in the help information
 		 */
 		boolean hidden() default false;
+
+		/**
+		 * Must read the option from terminal, and do not echo input
+		 */
+		boolean secret() default false;
+
+		/**
+		 * The prompt to display when reading secret from terminal
+		 */
+		String prompt() default "password: ";
 	}
 }

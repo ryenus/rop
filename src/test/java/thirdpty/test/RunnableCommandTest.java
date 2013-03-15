@@ -4,9 +4,10 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.ryez.OptionParser;
-import org.ryez.OptionParser.Command;
-import org.ryez.OptionParser.Option;
+
+import com.github.ryenus.rop.OptionParser;
+import com.github.ryenus.rop.OptionParser.Command;
+import com.github.ryenus.rop.OptionParser.Option;
 
 import thirdpty.cmd.BareOption;
 

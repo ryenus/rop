@@ -3,7 +3,8 @@ package thirdpty.test;
 import java.util.Arrays;
 
 import org.junit.Test;
-import org.ryez.OptionParser;
+
+import com.github.ryenus.rop.OptionParser;
 
 import thirdpty.cmd.NoDefaultConstructor;
 import thirdpty.cmd.PrivateConstructor;

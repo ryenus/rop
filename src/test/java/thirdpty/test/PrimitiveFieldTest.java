@@ -7,7 +7,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.Map;
 
 import org.junit.Test;
-import org.ryez.OptionParser;
+
+import com.github.ryenus.rop.OptionParser;
 
 public class PrimitiveFieldTest {
 

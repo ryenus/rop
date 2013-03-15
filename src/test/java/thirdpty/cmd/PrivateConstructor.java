@@ -1,7 +1,7 @@
 package thirdpty.cmd;
 
-import org.ryez.OptionParser.Command;
-import org.ryez.OptionParser.Option;
+import com.github.ryenus.rop.OptionParser.Command;
+import com.github.ryenus.rop.OptionParser.Option;
 
 @Command(name = "con", descriptions = " A command to demo that a Command with private no-arg constructor is ok, even if you cannot directly instantiate it yourself")
 public class PrivateConstructor {

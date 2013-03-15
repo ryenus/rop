@@ -3,8 +3,8 @@ package thirdpty.test;
 import java.io.File;
 import java.nio.file.Path;
 
-import org.ryez.OptionParser.Command;
-import org.ryez.OptionParser.Option;
+import com.github.ryenus.rop.OptionParser.Command;
+import com.github.ryenus.rop.OptionParser.Option;
 
 @Command(name = "load", descriptions = "The command to demo all the supported wrapper types")
 public class Wrappers {

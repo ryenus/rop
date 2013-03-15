@@ -1,8 +1,8 @@
-package org.ryez;
+package com.github.ryenus.rop;
 
-import static org.ryez.OptionType.LONG;
-import static org.ryez.OptionType.REVERSE;
-import static org.ryez.OptionType.SHORT;
+import static com.github.ryenus.rop.OptionType.LONG;
+import static com.github.ryenus.rop.OptionType.REVERSE;
+import static com.github.ryenus.rop.OptionType.SHORT;
 
 import java.io.File;
 import java.lang.annotation.ElementType;

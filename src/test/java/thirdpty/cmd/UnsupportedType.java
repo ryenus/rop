@@ -2,8 +2,8 @@ package thirdpty.cmd;
 
 import java.util.Calendar;
 
-import org.ryez.OptionParser.Command;
-import org.ryez.OptionParser.Option;
+import com.github.ryenus.rop.OptionParser.Command;
+import com.github.ryenus.rop.OptionParser.Option;
 
 @Command(name = "con", descriptions = "")
 public class UnsupportedType {

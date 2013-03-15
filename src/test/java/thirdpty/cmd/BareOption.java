@@ -1,6 +1,6 @@
 package thirdpty.cmd;
 
-import org.ryez.OptionParser.Command;
+import com.github.ryenus.rop.OptionParser.Command;
 
 @Command(name = "run", descriptions = "")
 public class BareOption {

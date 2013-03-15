@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/ryenus/rop.png?branch=master)](https://travis-ci.org/ryenus/rop)
 
-Rop is a small command line option parser.
+Rop is a small command line option parser written in Java.
 
 ## Introduction
 
@@ -12,7 +12,7 @@ Rop is designed to be minimal meanwhile convenient, to cover usual command line 
 
 ### How to start?
 
-Rop would be available as a Maven artifact `org.ryez:rop`.
+Rop would be available as a Maven artifact `com.github.ryenus:rop`.
 
 You can always get the latest source code from https://github.com/ryenus/rop.
 
@@ -32,6 +32,14 @@ class FooCommand {
 
 	@Option(description = "", opt = { "-i", "--int" })
 	int i = 3; // default to 3
+
+	void run(OptionParser parser, String[] params) {
+		System.out.println("The run() method, if defined, would be invoked automatically.");
+		System.out.println("And the run() method would receive remaining args, as:");
+		for (String param : params) {
+			System.out.println("\t" + param);
+		}
+	}
 }
 ```
 
@@ -40,14 +48,22 @@ class FooCommand {
 public static void main(String[] args) {
 	FooCommand foo = new FooCommand();
 	OptionParser parser = new OptionParser(foo);
-	String[] rest = parser.parse(args);
+	parser.parse(args);
 	if (b) { // b is set to true by the parser
 		System.out.println(foo.i); // => 3
 	}
 }
 ```
 
+During the end of parsing, if a method named `run()` is found, it would be called automatically, another benefit is that the options and the behaviour are both put inside the Command itself. If there're multiple `run()` methods in a command class, only the first found will be called.
+
+In the above example,  `FooCommand.run()` would be called automatically, in which it can receive a reference to the parser itself, and all the remaining arguments in the params array. However, either argument or both can be omitted.
+
 ## Supported Field Types and Default Values
+
+* String, and all primitive type and their wrapper types are directly supported.
+* File, Path are supported as well, but not Date/Time yet.
+* There might be a customizable type binder available in the future.
 
 <pre>
 Types                   Default Values
@@ -62,11 +78,32 @@ char                    '\u0000'
 String/Wrapper/Object   null
 </pre>
 
-* String, and all primitive type and their wrapper types are directly supported.
-* File, Path are supported as well, but not Date/Time yet.
-* There might be a customizable type binder available in the future.
-
 As in the above example, a default option value can be directly set with the field. If not set, the option values default to their type default, as specified in http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html
+
+## Sub-commands
+
+Some commands are quite simple, they just do one thing and do it well, such as commonly used unix command `cp` and `ls`. But other commands like `cvs` and `git` are quite different, Git provids a bunch of sub-commands to do many different things, such as `git add`, `git commit`, etc.
+
+With OptionParser, you can register just one Command class to build simple commands like `cp`, you can also register multiple Command classes to build commands that support multiple sub-commands like `git`.
+
+By default, the parser only handles no more than one sub-command, like with Git, in `git add ... commit ...`, the 'commit' is treated as an argument, not a sub-command.
+
+If you have used Maven, it's a different story, you can run multiple sub-commands together, e.g. `mvn clean test package` is totally ok in Maven. Can we do that as well? Sure, but how? it's actually simple:
+
+Rather than
+
+```java
+parser.parse(args)
+```
+
+instead, use
+
+```java
+parser.parse(args, true)
+```
+
+For each the recoganized commands, all the `run()` methods, if found, would be called, in the order they appear on the command line.
+
 
 ## Built-in Help
 

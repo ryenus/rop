@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/ryenus/rop.png?branch=master)](https://travis-ci.org/ryenus/rop)
 
-Rop is a small command line option parser written in Java.
+Rop is a lightweight command line option parser written in Java.
 
 ## Introduction
 
@@ -25,7 +25,7 @@ import org.ryez.OptionParser;
 import org.ryez.OptionParser.Command;
 import org.ryez.OptionParser.Option;
 
-@Command(name = "run", description = "")
+@Command(name = "foo", description = "")
 class FooCommand {
 	@Option(description = "", opt = { "-b", "--boolean" })
 	boolean b;
@@ -34,16 +34,15 @@ class FooCommand {
 	int i = 3; // default to 3
 
 	void run(OptionParser parser, String[] params) {
-		System.out.println("The run() method, if defined, would be invoked automatically.");
-		System.out.println("And the run() method would receive remaining args, as:");
+		// This method would be called automatically
+
+		// Both arguments, the parser and the params are optional
 		for (String param : params) {
 			System.out.println("\t" + param);
 		}
 	}
 }
-```
 
-```java
 // assume this is called with 'java TheMain -b'
 public static void main(String[] args) {
 	FooCommand foo = new FooCommand();
@@ -55,11 +54,35 @@ public static void main(String[] args) {
 }
 ```
 
-During the end of parsing, if a method named `run()` is found, it would be called automatically, another benefit is that the options and the behaviour are both put inside the Command itself. If there're multiple `run()` methods in a command class, only the first found will be called.
+## Understanding Rop
 
-In the above example,  `FooCommand.run()` would be called automatically, in which it can receive a reference to the parser itself, and all the remaining arguments in the params array. However, either argument or both can be omitted.
+The most significant thing in Rop is the `OptionParser` class, with which Commands are registered, then you call its `parse()` method to parse the command line arguments.
 
-## Supported Field Types and Default Values
+### The `@Command` Annotation
+
+Any vanilla class can be turned to a valid Command with the `@Command` annotation.
+
+### The `@Option` Annotation
+
+In a Command class, those fields having the `@Option` annotation, are viable to be set from command line argments when the Command and Options are recognized during parsing. The above example should make it pretty clear.
+
+### Command Registration
+
+The parser, i.e, the `OptionParser` class, provides a `register()` method to allow a Command, i.e. a class annotated with `@Command` or its instance, to be registered with the parser. The `register()` method is chainable, as it always returns the parser object.
+
+A Command can also be registered by passing it directly to the constructor `OptionParser(Object ...)`, so you don't have to explicitly call the `register()` method. As you can see, the constructor can be called with any number of Commands.
+
+### Post Parsing Hook - Method `run`
+
+A Command can have a little magic. If it has a method named `run`, such as `run(OptionParser parser, String[] params)`. The parser would call this method at the end of parsing.
+
+If you're not interested in getting either the parser, or the parameters, just omit it, or even both of them.
+
+Note that if there're more than one `run` method, only the first would be called.
+
+In the above example,  `FooCommand.run()` would be called automatically, in which it can receive a reference to the parser itself, and an array which consists of all the remaining arguments.
+
+### Supported Field Types and Default Values
 
 * String, and all primitive type and their wrapper types are directly supported.
 * File, Path are supported as well, but not Date/Time yet.
@@ -78,34 +101,35 @@ char                    '\u0000'
 String/Wrapper/Object   null
 </pre>
 
-As in the above example, a default option value can be directly set with the field. If not set, the option values default to their type default, as specified in http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html
+As in the above example, a default option value can be directly set to its associated field. If not set, the option values default to their type default, as list above, according to Java Tutorial - [Primitive Data Types](http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html).
 
-## Sub-commands
+### Sub Command
 
-Some commands are quite simple, they just do one thing and do it well, such as commonly used unix command `cp` and `ls`. But other commands like `cvs` and `git` are quite different, Git provids a bunch of sub-commands to do many different things, such as `git add`, `git commit`, etc.
+Typical commands, such as [`mv`](http://en.wikipedia.org/wiki/Mv) and [`ls`](http://en.wikipedia.org/wiki/Ls) in Unix, are quite simple, they're designed to [do one thing and do it well](http://en.wikipedia.org/wiki/Unix_philosophy).
 
-With OptionParser, you can register just one Command class to build simple commands like `cp`, you can also register multiple Command classes to build commands that support multiple sub-commands like `git`.
+However, not everything is simple. [Git](http://git-scm.com/) provides a bunch of sub-commands to do many different things, such as `git add`, `git commit` and `git log`.
 
-By default, the parser only handles no more than one sub-command, like with Git, in `git add ... commit ...`, the 'commit' is treated as an argument, not a sub-command.
+With Rop, you can register just one Command to build a simple command like `mv`, you can also register multiple Commands to support sub-commands like Git.
 
-If you have used Maven, it's a different story, you can run multiple sub-commands together, e.g. `mvn clean test package` is totally ok in Maven. Can we do that as well? Sure, but how? it's actually simple:
+Though Git provides many sub-commands, you can only use one sub-command at a time, in `git add ... commit ...`, the 'commit' is treated as something to be added with `git add`, not the sub-command `git commit`.
 
-Rather than
+But for [Apache Maven](http://en.wikipedia.org/wiki/Apache_Maven), it's a different story, you can run multiple sub-commands together, e.g. `mvn clean test package` is totally ok in Maven. Can we do that as well? Sure, it's actually very simple:
+
+Rather than calling
 
 ```java
 parser.parse(args)
 ```
 
-instead, use
+instead, call
 
 ```java
 parser.parse(args, true)
 ```
 
-For each the recoganized commands, all the `run()` methods, if found, would be called, in the order they appear on the command line.
+The extra boolean argument, when set to 'true', tells the parser to recognize all the sub-commands appeared. For each recognized sub-command, its `run()` method, if found, would be called, in the order they appeared on the command line.
 
-
-## Built-in Help
+### Built-in Help
 
 If option '--help' is present, the parser will:
 
@@ -127,3 +151,6 @@ If you don't have the time to work on Rop, but found something we should know ab
 Rop is released under the [MIT license](http://www.opensource.org/licenses/MIT).
 
 ## Related projects
+
+* [JCommander](https://github.com/cbeust/jcommander)
+* [joptparse](https://code.google.com/p/joptparse)

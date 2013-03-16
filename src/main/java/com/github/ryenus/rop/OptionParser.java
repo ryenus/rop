@@ -27,7 +27,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 /**
- * A small command line option parser. It also supports level-two
+ * Rop - A lightweight command line option parser. It also supports level-two
  * sub-commands, as with {@code git add}.
  *
  * @author ryenus
@@ -99,7 +99,8 @@ public class OptionParser {
 		String cmdName = cmdAnno.name();
 		CommandInfo existingCmd = byName.get(cmdName);
 		if (existingCmd != null) {
-			throw new RuntimeException(String.format("A command named '%s' is already registered by class '%s'", cmdName, existingCmd.command.getClass().getName()));
+			throw new RuntimeException(String.format("A command named '%s' is already registered by class '%s'",
+					cmdName, existingCmd.command.getClass().getName()));
 		}
 
 		byType.put(klass, instance);
@@ -367,7 +368,7 @@ public class OptionParser {
 	 * Annotate a class as Command to use it with {@link OptionParser}.
 	 *
 	 * <p>
-	 * The desciptions and notes will be used to make up the help information.
+	 * The descriptions and notes will be used to make up the help information.
 	 * When crafted well, the descriptions and/or notes could span multiple
 	 * paragraphs, as well as indented list items, thus to provide a well
 	 * explained help.
@@ -399,8 +400,9 @@ public class OptionParser {
 		 * -------------------------------------------------------------------
 		 * {"statement 1",                      statement 1
 		 *  " indented item A"                   indented item A
-		 *  "\n indented & demarcated item B"}
-		 *                                       indented & demarcated item B
+		 *  "\tindented item B"                          indented item B
+		 *  "\n indented & separated item C"}
+		 *                                       indented & separated item C
 		 * </pre>
 		 *
 		 * If a line contains than 80 characters, the line would be
@@ -414,7 +416,7 @@ public class OptionParser {
 		 *
 		 * <p>
 		 * As with {@link #descriptions()}, the same trick can be used to
-		 * demarcate paragraphs
+		 * separate paragraphs
 		 */
 		String[] notes() default {};
 	}

@@ -18,9 +18,9 @@ public class SubCommandTest {
 
 	@Test
 	public void subcommands() {
-		parser = new OptionParser(Primitives.class, Wrappers.class, PrivateConstructor.class);
+		Wrappers o = new Wrappers();
+		parser = new OptionParser(Primitives.class, o, PrivateConstructor.class);
 		Primitives p = parser.get(Primitives.class);
-		Wrappers o = parser.get(Wrappers.class);
 		PrivateConstructor c = parser.get(PrivateConstructor.class);
 
 		assertFalse(p.b);

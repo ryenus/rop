@@ -291,40 +291,46 @@ public class OptionParser {
 	}
 
 	private void invokeRun(Map<Object, String[]> cpm) {
-		try {
-			for (Object cmd : cpm.keySet()) {
-				invokeRun(cmd, cpm.get(cmd));
-			}
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			throw new RuntimeException(e);
+		for (Object cmd : cpm.keySet()) {
+			invokeRun(cmd, cpm.get(cmd));
 		}
 	}
 
-	private Object invokeRun(Object cmd, String[] params) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	private Object invokeRun(Object cmd, String[] params) {
 		try {
-			Method run = cmd.getClass().getDeclaredMethod("run", OptionParser.class, String[].class);
-			run.setAccessible(true);
-			return run.invoke(cmd, this, params);
-		} catch (NoSuchMethodException e) {
 			try {
-				Method run = cmd.getClass().getDeclaredMethod("run", String[].class);
+				Method run = cmd.getClass().getDeclaredMethod("run", OptionParser.class, String[].class);
 				run.setAccessible(true);
-				return run.invoke(cmd, (Object) params); //bypass the var-args magic
-			} catch (NoSuchMethodException e1) {
+				return run.invoke(cmd, this, params);
+			} catch (NoSuchMethodException e) {
 				try {
-					Method run = cmd.getClass().getDeclaredMethod("run", OptionParser.class);
+					Method run = cmd.getClass().getDeclaredMethod("run", String[].class, OptionParser.class);
 					run.setAccessible(true);
-					return run.invoke(cmd, this);
-				} catch (NoSuchMethodException e2) {
+					return run.invoke(cmd, params, this);
+				} catch (NoSuchMethodException e1) {
 					try {
-						Method run = cmd.getClass().getDeclaredMethod("run");
+						Method run = cmd.getClass().getDeclaredMethod("run", String[].class);
 						run.setAccessible(true);
-						return run.invoke(cmd);
-					} catch (NoSuchMethodException e3) {
-						return null;
+						return run.invoke(cmd, (Object) params); //bypass the var-args magic
+					} catch (NoSuchMethodException e2) {
+						try {
+							Method run = cmd.getClass().getDeclaredMethod("run", OptionParser.class);
+							run.setAccessible(true);
+							return run.invoke(cmd, this);
+						} catch (NoSuchMethodException e3) {
+							try {
+								Method run = cmd.getClass().getDeclaredMethod("run");
+								run.setAccessible(true);
+								return run.invoke(cmd);
+							} catch (NoSuchMethodException e4) {
+								return null;
+							}
+						}
 					}
 				}
 			}
+		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

@@ -17,6 +17,8 @@ import java.security.Permission;
 import org.junit.Test;
 
 import com.github.ryenus.rop.OptionParser;
+import com.github.ryenus.rop.OptionParser.Command;
+import com.github.ryenus.rop.OptionParser.Option;
 
 import thirdpty.cmd.BareCommand;
 import thirdpty.cmd.BareOption;
@@ -30,7 +32,7 @@ public class OptionParserTest {
 
 	@Test
 	public void forcedArgs() {
-		parser = new OptionParser(PrivateConstructor.class);
+		parser = new OptionParser().register(PrivateConstructor.class);
 		PrivateConstructor p = parser.get(PrivateConstructor.class);
 		assertFalse(p.b);
 		assertEquals(0, p.i);
@@ -53,7 +55,7 @@ public class OptionParserTest {
 
 	@Test
 	public void showHelp() {
-		parser = new OptionParser(Primitives.class, PrivateConstructor.class, Wrappers.class);
+		parser = new OptionParser(Primitives.class, PrivateConstructor.class).register(new Wrappers());
 		SecurityManager secMan = System.getSecurityManager();
 		System.setSecurityManager(new SecurityManager() {
 			@Override
@@ -87,11 +89,6 @@ public class OptionParserTest {
 		}
 	}
 
-	@Test
-	public void bareOption() {
-		parser = new OptionParser(BareOption.class);
-	}
-
 	@Test(expected = RuntimeException.class)
 	public void commandMissing() {
 		parser = new OptionParser();
@@ -101,6 +98,16 @@ public class OptionParserTest {
 	@Test(expected = RuntimeException.class)
 	public void bareCommand() {
 		parser = new OptionParser(BareCommand.class);
+	}
+
+	@Test
+	public void bareOption() {
+		parser = new OptionParser(BareOption.class);
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void noKeyOption() {
+		parser = new OptionParser(OptionNoKey.class);
 	}
 
 	@Test(expected = RuntimeException.class)
@@ -149,5 +156,10 @@ public class OptionParserTest {
 		assertEquals(1, r.xc);
 		assertArrayEquals(new String[] { "run1" }, r.params);
 	}
+}
 
+@Command(name = "foo", descriptions = "")
+class OptionNoKey {
+	@Option(opt = {}, description = "")
+	boolean verbose;
 }

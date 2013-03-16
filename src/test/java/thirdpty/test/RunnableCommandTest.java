@@ -84,18 +84,34 @@ public class RunnableCommandTest {
 		RunnableCommand2 r2 = new RunnableCommand2();
 		RunnableCommand3 r3 = new RunnableCommand3();
 		RunnableCommand4 r4 = new RunnableCommand4();
-		parser = new OptionParser(r0, r1, r2, r3, r4);
+		RunnableCommand5 r5 = new RunnableCommand5();
+		parser = new OptionParser(r0, r1, r2, r3, r4, r5);
 
-		String[] osArgs = "run a run1 -bx b run2 c run3 run4 -i 1".split("\\s+");
+		String[] osArgs = "run a run1 -bx b run2 c run3 run4 -i 1 run5".split("\\s+");
 		parser.parse(osArgs, false);
+		assertEquals(parser, r1.parser);
+		assertEquals(true, r1.b);
+		assertEquals(true, r1.x);
+		assertEquals(10, r1.i);
+		assertArrayEquals(new String[] { "run", "a" }, r0.params);
+		assertArrayEquals(new String[] { "b", "run2", "c", "run3", "run4", "run5" }, r1.params);
+		assertArrayEquals(null, r2.params);
+		assertEquals(null, r3.parser);
+		assertEquals(false, r4.set);
+		assertEquals(false, r5.set);
+
+		parser.parse(osArgs, true);
 		assertArrayEquals(new String[] { "run", "a" }, r0.params);
 		assertEquals(true, r1.b);
 		assertEquals(true, r1.x);
 		assertEquals(10, r1.i);
-		assertArrayEquals(new String[] { "b", "run2", "c", "run3", "run4" }, r1.params);
-		assertArrayEquals(null, r2.params);
-		assertEquals(null, r3.parser);
-		assertEquals(false, r4.set);
+		assertArrayEquals(new String[] { "b" }, r1.params);
+		assertArrayEquals(new String[] { "c" }, r2.params);
+		assertEquals(parser, r3.parser);
+		assertEquals(true, r4.set);
+		assertArrayEquals(new String[] {}, r5.params);
+		assertEquals(parser, r5.parser);
+		assertEquals(true, r5.set);
 	}
 }
 
@@ -110,6 +126,7 @@ class SimpleRun {
 
 @Command(name = "run1", descriptions = "")
 class RunnableCommand {
+	OptionParser parser;
 	String[] params;
 
 	@Option(description = "", opt = { "-b", "--boolean" }, required = true)
@@ -123,8 +140,10 @@ class RunnableCommand {
 
 	int xc = 0;
 
+
 	void run(OptionParser parser, String[] params) {
 		i = 10;
+		this.parser = parser;
 		this.params = params;
 		xc++;
 	}
@@ -156,6 +175,23 @@ class RunnableCommand4 {
 	int i = 9;
 
 	void run() {
+		set = true;
+	}
+}
+
+@Command(name = "run5", descriptions = "")
+class RunnableCommand5 {
+	boolean set;
+	String[] params;
+	OptionParser parser;
+
+	@Option(description = "", opt = { "-i", "--int" })
+	int i = 9;
+
+
+	void run(String[] params, OptionParser parser) {
+		this.params = params;
+		this.parser = parser;
 		set = true;
 	}
 }

@@ -39,10 +39,10 @@ public class OptionParser {
 	private CommandInfo cci;
 
 	/**
-	 * Construct an {@link OptionParse}. It also accepts one or a group of,
+	 * Construct an OptionParse instance. It also accepts one or a group of,
 	 * command classes or the corresponding instances to be registered with.
 	 *
-	 * @see {@link #register(Object)}
+	 * @see #register(Object)
 	 */
 	public OptionParser(Object... commands) {
 		this.byType = new HashMap<>();
@@ -124,13 +124,14 @@ public class OptionParser {
 	}
 
 	/**
-	 * Parse the command line args, but at most support one sub-command.
+	 * Parse the command line args, but accept only the first sub-command, all
+	 * other sub-command from the command line are treated as normal arguments.
 	 *
 	 * @param args
 	 *            this should be the command line args passed to {@code main}
 	 * @return a map consists of the recognized command and their params
 	 *
-	 * @see {@link #parse(String[], boolean)}
+	 * @see #parse(String[], boolean)
 	 */
 	public Map<Object, String[]> parse(String[] args) {
 		return parse(args, false);
@@ -357,7 +358,7 @@ public class OptionParser {
 	 * return its instance, with all the parsed option values.
 	 *
 	 * @param klass
-	 * @return
+	 * @return the instance of the given Command class
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T get(Class<T> klass) {
@@ -374,7 +375,7 @@ public class OptionParser {
 	 * explained help.
 	 * </p
 	 *
-	 * @see {@link Command#descriptions()}
+	 * @see Command#descriptions()
 	 */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
@@ -387,7 +388,7 @@ public class OptionParser {
 		 *
 		 * <p>
 		 * With an array of sentences, by prefixing an item with a {@code '\n'}
-		 * character, a new line would be inserted above it to demarcate from
+		 * character, a new line would be inserted above it to separated from
 		 * the previous one hence make it a new paragraph.
 		 * </p>
 		 *
@@ -399,10 +400,10 @@ public class OptionParser {
 		 *                                      statement 2
 		 * -------------------------------------------------------------------
 		 * {"statement 1",                      statement 1
-		 *  " indented item A"                   indented item A
-		 *  "\tindented item B"                          indented item B
-		 *  "\n indented & separated item C"}
-		 *                                       indented & separated item C
+		 *  " space indented item A"             space indented item A
+		 *  "\ttab indented item B"                     tab indented item B
+		 *  "\n separated & indented item C"}
+		 *                                       separated & indented item C
 		 * </pre>
 		 *
 		 * If a line contains than 80 characters, the line would be
@@ -429,7 +430,7 @@ public class OptionParser {
 	@Retention(RetentionPolicy.RUNTIME)
 	public static @interface Option {
 		/**
-		 * The option keys, like {@literal '-f'}, {@literal '--file'}
+		 * The option keys, like {@literal '-f'}, {@literal '--file'}.
 		 *
 		 * Multiple option keys are supported, but the built-in help information
 		 * would only display the first short option and the first long option
@@ -438,15 +439,15 @@ public class OptionParser {
 		String[] opt();
 
 		/**
-		 * A not so long description of the option, it would be wrapped
-		 * correctly with even a 2-space indent starting from the second line.
+		 * The description of the option, if too long, it would be wrapped
+		 * correctly with a 2-space indent starting from the second line.
 		 */
 		String description();
 
 		boolean required() default false;
 
 		/**
-		 * Hide the option from showing up in help information
+		 * Hide the option in the help information
 		 */
 		boolean hidden() default false;
 	}

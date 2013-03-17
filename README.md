@@ -148,7 +148,7 @@ If you don't have the time to work on Rop, but found something we should know ab
 
 ## License
 
-Rop is released under the [MIT license](http://www.opensource.org/licenses/MIT).
+Rop is released under the [MIT License](http://www.opensource.org/licenses/MIT).
 
 ## Related projects
 

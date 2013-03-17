@@ -1,9 +1,13 @@
 apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
 apply plugin: 'eclipse'
 // apply from:'https://raw.github.com/breskeby/gradleplugins/master/emmaPlugin/emma.gradle'
-apply from:'src/test/resources/emma.gradle'
+apply from:'emma.gradle'
 
+group = 'com.github.ryenus'
 version = '1.0'
+
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 repositories {
@@ -19,4 +23,24 @@ dependencies {
 
 test {
 	systemProperties 'file.encoding': 'UTF-8'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	classifier = 'javadoc'
+	from 'build/docs/javadoc'
+}
+
+task sourcesJar(type: Jar) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+artifacts {
+	archives jar
+	archives javadocJar
+	archives sourcesJar
+}
+
+signing {
+	sign configurations.archives
 }

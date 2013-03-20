@@ -22,7 +22,7 @@ class CommandInfo {
 		this.anno = anno;
 
 		map = new HashMap<>();
-		Class<? extends Object> klass = command.getClass();
+		Class<?> klass = command.getClass();
 		for (Field field : klass.getDeclaredFields()) {
 			if (!field.isSynthetic()) {
 				Option optAnno = field.getAnnotation(Option.class);

@@ -336,7 +336,11 @@ public class OptionParser {
 		}
 	}
 
-	private void showHelp() {
+	/**
+	 * Display the help information, which is constructed from all the registered
+	 * Commands and their Options.
+	 */
+	public void showHelp() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(top.help(false));
 		sb.append(String.format("\n      --help %20s display this help and exit", ""));
@@ -354,11 +358,11 @@ public class OptionParser {
 	}
 
 	/**
-	 * After parsing, if given a registered Command class, this method will
-	 * return its instance, with all the parsed option values.
+	 * Get the instance of the provided Command class if it's registered.
 	 *
-	 * @param klass
-	 * @return the instance of the given Command class
+	 * @param klass a registered Command class
+	 * @return the instance of the given Command class, null if Command not
+	 * registered
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T get(Class<T> klass) {

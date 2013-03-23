@@ -1,4 +1,1 @@
-# language: java # this trigger `gradle assemble`
-# which fails as gpg signature not (and won't) on Travis
-
-script: "gradle test"
+language: java

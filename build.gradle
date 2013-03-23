@@ -73,18 +73,6 @@ uploadArchives {
 						name 'Roger Ye'
 					}
 				}
-
-				properties {
-					maven {
-						compiler {
-							source '1.7'
-							target '1.7'
-						}
-					}
-					project {
-						build { sourceEncoding 'UTF-8' }
-					}
-				}
 			}
 		}
 	}

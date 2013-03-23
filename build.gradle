@@ -10,9 +10,7 @@ version = '1.0'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-repositories {
-	mavenCentral()
-}
+repositories { mavenCentral() }
 
 dependencies {
 	emma "emma:emma:2.0.5312"
@@ -21,9 +19,7 @@ dependencies {
 	testCompile 'junit:junit:4.8.2'
 }
 
-test {
-	systemProperties 'file.encoding': 'UTF-8'
-}
+test { systemProperties 'file.encoding': 'UTF-8' }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
 	classifier = 'javadoc'
@@ -41,6 +37,55 @@ artifacts {
 	archives sourcesJar
 }
 
-signing {
-	sign configurations.archives
+signing { sign configurations.archives }
+
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+			repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+				authentication(userName: sonatypeUsername, password: sonatypePassword)
+			}
+
+			pom.project {
+				name 'Rop'
+				description 'A lightweight command line option parser written in Java'
+				url 'http://ryenus.github.com/rop'
+
+				scm {
+					url 'https://github.com/ryenus/rop'
+					connection 'scm:git:https://github.com/ryenus/rop'
+					developerConnection 'scm:git:git@github.com:ryenus/rop'
+				}
+
+				licenses {
+					license {
+						name 'MIT License'
+						url 'http://www.opensource.org/licenses/MIT'
+						distribution 'repo'
+					}
+				}
+
+				developers {
+					developer {
+						id 'ryenus'
+						name 'Roger Ye'
+					}
+				}
+
+				properties {
+					maven {
+						compiler {
+							source '1.7'
+							target '1.7'
+						}
+					}
+					project {
+						build { sourceEncoding 'UTF-8' }
+					}
+				}
+			}
+		}
+	}
 }

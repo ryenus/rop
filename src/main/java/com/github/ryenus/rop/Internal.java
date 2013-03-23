@@ -51,9 +51,8 @@ class CommandInfo {
 		String cmdDesc = Utils.format(anno.descriptions(), false);
 		sb.append(cmdDesc);
 
-		HashSet<OptionInfo> opts = new HashSet<OptionInfo>(map.values());
-		List<String> list = new ArrayList<>(opts.size());
-		for (OptionInfo oi : opts) {
+		List<String> list = new ArrayList<>(map.size());
+		for (OptionInfo oi : new HashSet<>(map.values())) {
 			if (!oi.anno.hidden()) {
 				list.add(oi.help());
 			}

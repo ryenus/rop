@@ -240,13 +240,14 @@ public class OptionParser {
 	}
 
 	private void parseOpt(String option, ListIterator<String> liter, OptionType optionType) {
-		OptionInfo optionInfo = cci.map.get(option);
+		String[] parts = option.split("[=:]", 2); // TODO: need de-quote parts[1]
+		String key = parts[0];
+		OptionInfo optionInfo = cci.map.get(key);
 		if (optionInfo == null) {
-			throw new IllegalArgumentException(String.format("Unknown option '%s", option));
+			throw new IllegalArgumentException(String.format("Unknown option '%s", key));
 		}
 
 		Field field = optionInfo.field;
-		field.setAccessible(true);
 		Class<?> fieldType = field.getType();
 
 		Object value = null;
@@ -254,14 +255,15 @@ public class OptionParser {
 			value = Utils.readSecret(optionInfo.anno.prompt());
 		} else if (fieldType == boolean.class || fieldType == Boolean.class) {
 			value = (optionType != REVERSE);
-		} else { // TODO: support arity
-			if (!liter.hasNext()) {
-				throw new IllegalArgumentException(String.format("Argument missing for option '%s%s'", optionType.prefix, option));
+		} else {
+			if (parts.length == 1 && !liter.hasNext()) {
+				throw new IllegalArgumentException(String.format("Argument missing for option '%s%s'", optionType.prefix, key));
 			}
-			value = parseValue(fieldType, liter.next());
+			value = parseValue(fieldType, parts.length == 1 ? liter.next() : parts[1]);
 		}
 
 		try {
+			field.setAccessible(true);
 			field.set(cci.command, value);
 			optionInfo.set = true;
 		} catch (IllegalArgumentException | IllegalAccessException e) {

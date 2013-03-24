@@ -189,7 +189,7 @@ public class OptionParser {
 				if (ci == cci || cpm.containsKey(ci.command) || (!multi && cpm.size() > 0)) {
 					params.add(arg);
 				} else {
-					push(cpm, cci, params);
+					stage(cpm, cci, params);
 					params.clear();
 					cci = ci;
 				}
@@ -218,13 +218,13 @@ public class OptionParser {
 			}
 		}
 
-		push(cpm, cci, params);
+		stage(cpm, cci, params);
 
 		invokeRun(cpm); // call command.run(this)
 		return cpm;
 	}
 
-	void push(Map<Object, String[]> cpm, CommandInfo ci, List<String> params) {
+	private static void stage(Map<Object, String[]> cpm, CommandInfo ci, List<String> params) {
 		cpm.put(ci.command, params.toArray(new String[params.size()]));
 		for (OptionInfo oi : new HashSet<>(ci.map.values())) {
 			if (oi.anno.required() && !oi.set) {
@@ -267,7 +267,7 @@ public class OptionParser {
 		}
 	}
 
-	private Object parseValue(Class<?> type, String value) {
+	private static Object parseValue(Class<?> type, String value) {
 		if (type == String.class) {
 			return value;
 		} else if (type == int.class || type == Integer.class) {

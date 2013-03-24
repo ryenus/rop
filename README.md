@@ -158,5 +158,7 @@ Rop is released under the [MIT License](http://www.opensource.org/licenses/MIT).
 
 ## Related projects
 
+* [JOpt Simple](http://pholser.github.com/jopt-simple)
 * [JCommander](https://github.com/cbeust/jcommander)
+* [Commons CLI](http://commons.apache.org/proper/commons-cli/)
 * [joptparse](https://code.google.com/p/joptparse)

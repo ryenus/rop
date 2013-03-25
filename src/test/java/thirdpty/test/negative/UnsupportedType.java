@@ -1,14 +1,16 @@
-package thirdpty.cmd;
+package thirdpty.test.negative;
+
+import java.util.Calendar;
 
 import com.github.ryenus.rop.OptionParser.Command;
 import com.github.ryenus.rop.OptionParser.Option;
 
 @Command(name = "con", descriptions = "")
-public class NoDefaultConstructor {
+public class UnsupportedType {
 
 	@Option(description = "", opt = { "-b", "--boolean" })
 	boolean b;
 
-	private NoDefaultConstructor(boolean bool) {
-	}
+	@Option(description = "", opt = { "-c", "--cal" })
+	Calendar cal;
 }

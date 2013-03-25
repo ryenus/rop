@@ -1,4 +1,4 @@
-package thirdpty.cmd;
+package thirdpty.test;
 
 import com.github.ryenus.rop.OptionParser.Command;
 

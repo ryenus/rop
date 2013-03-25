@@ -6,8 +6,7 @@ import org.junit.Test;
 
 import com.github.ryenus.rop.OptionParser;
 
-import thirdpty.cmd.NoDefaultConstructor;
-import thirdpty.cmd.PrivateConstructor;
+import thirdpty.test.negative.NoDefaultConstructor;
 
 public class CommandConstructorTest {
 

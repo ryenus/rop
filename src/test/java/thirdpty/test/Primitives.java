@@ -10,7 +10,7 @@ import com.github.ryenus.rop.OptionParser.Option;
 	" 1 - if minor problems (e.g., cannot access subdirectory),",
 	" 2 - if serious trouble (e.g., cannot access command-line argument)."
 })
-class Primitives {
+public class Primitives {
 	@Option(description = "a bool flag", opt = { "-b", "--boolean" })
 	boolean b;
 

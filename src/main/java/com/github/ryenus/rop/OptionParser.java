@@ -141,24 +141,24 @@ public class OptionParser {
 	 * After registering all {@link Command} classes/objects, invoke this method
 	 * to parse the command line args and populate the {@link Option} fields of
 	 * the registered command objects.
-	 * 
+	 *
 	 * <p>
 	 * If the built-in option {@literal "--help"} is found, the parser will
 	 * generate and display the help information, then call
 	 * {@code System.exit(0)}.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * All the parsed commands would be collected in a {@link Map}, with each
 	 * one's class as key, and it's parameters array as value.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * After parsing, for each parsed command if it has the method
 	 * {@code run(OptionParser, String[])} defined, the method will be invoked
 	 * automatically, with the OptionParser object and its parameters passed in.
 	 * </p>
-	 * 
+	 *
 	 * @param args
 	 *            this should be the command line args passed to {@code main}
 	 * @param multi

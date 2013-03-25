@@ -9,7 +9,6 @@ import com.github.ryenus.rop.OptionParser;
 import com.github.ryenus.rop.OptionParser.Command;
 import com.github.ryenus.rop.OptionParser.Option;
 
-import thirdpty.cmd.BareOption;
 
 public class RunnableCommandTest {
 
@@ -121,31 +120,6 @@ class SimpleRun {
 
 	void run(OptionParser parser, String[] params) {
 		this.params = params;
-	}
-}
-
-@Command(name = "run1", descriptions = "")
-class RunnableCommand {
-	OptionParser parser;
-	String[] params;
-
-	@Option(description = "", opt = { "-b", "--boolean" }, required = true)
-	boolean b;
-
-	@Option(description = "", opt = { "-x", "--debug" }, required = true)
-	boolean x;
-
-	@Option(description = "", opt = { "-i", "--int" })
-	int i = 9;
-
-	int xc = 0;
-
-
-	void run(OptionParser parser, String[] params) {
-		i = 10;
-		this.parser = parser;
-		this.params = params;
-		xc++;
 	}
 }
 

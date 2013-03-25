@@ -1,4 +1,4 @@
-package thirdpty.cmd;
+package thirdpty.test.negative;
 
 import com.github.ryenus.rop.OptionParser.Option;
 

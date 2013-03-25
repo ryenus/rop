@@ -8,9 +8,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
+
 import com.github.ryenus.rop.OptionParser;
 
-import thirdpty.cmd.PrivateConstructor;
 
 public class SubCommandTest {
 

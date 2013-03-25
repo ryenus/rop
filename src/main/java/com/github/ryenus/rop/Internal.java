@@ -1,9 +1,6 @@
 package com.github.ryenus.rop;
 
-import java.io.BufferedReader;
 import java.io.Console;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import com.github.ryenus.rop.OptionParser.Command;
 import com.github.ryenus.rop.OptionParser.Option;
@@ -210,15 +208,13 @@ class Utils {
 			return password;
 		}
 
-		try(BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+		try(Scanner s = new Scanner(System.in)) {
 			String line = null;
 			while (line == null || line.length() == 0) {
 				System.out.print(prompt);
-				line = br.readLine();
+				line = s.nextLine();
 			}
 			return line.toCharArray();
-		} catch (IOException e) {
-			throw new RuntimeException("Cannot read standard input");
 		}
 	}
 }

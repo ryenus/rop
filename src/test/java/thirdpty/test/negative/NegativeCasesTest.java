@@ -63,4 +63,9 @@ public class NegativeCasesTest {
 	public void bareCommand() {
 		parser = new OptionParser(BareCommand.class);
 	}
+
+	@Test(expected = RuntimeException.class)
+	public void hiddenRequired() {
+		parser = new OptionParser(HiddenRequiredOption.class);
+	}
 }

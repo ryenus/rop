@@ -5,9 +5,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -16,19 +18,23 @@ import java.security.Permission;
 
 import org.junit.Test;
 
-import com.github.ryenus.rop.OptionParser;
-import com.github.ryenus.rop.OptionParser.Command;
-import com.github.ryenus.rop.OptionParser.Option;
-
 import thirdpty.cmd.BareCommand;
 import thirdpty.cmd.BareOption;
 import thirdpty.cmd.DuplicateOptionKeys;
 import thirdpty.cmd.PrivateConstructor;
 import thirdpty.cmd.UnsupportedType;
 
+import com.github.ryenus.rop.OptionParser;
+import com.github.ryenus.rop.OptionParser.Command;
+import com.github.ryenus.rop.OptionParser.Option;
+
 public class OptionParserTest {
 
 	private OptionParser parser;
+
+	public static void main(String[] args) {
+		new OptionParser(PasswordInput.class).parse(args.length == 0 ? new String[] { "-p" } : args);
+	}
 
 	@Test
 	public void forcedArgs() {
@@ -69,6 +75,7 @@ public class OptionParserTest {
 		});
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream stdout = System.out;
 		System.setOut(new PrintStream(baos));
 
 		try {
@@ -77,6 +84,7 @@ public class OptionParserTest {
 			assertEquals("0", e.getMessage()); // caught exit code
 		}
 
+		System.setOut(stdout);
 		System.setSecurityManager(secMan);
 		System.err.println(baos.toString());
 
@@ -86,6 +94,20 @@ public class OptionParserTest {
 			assertArrayEquals(bytes, baos.toByteArray());
 		} catch (IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	@Test
+	public void inputPassword() {
+		InputStream stdin = System.in;
+		try {
+			PasswordInput pi = new PasswordInput();
+			parser = new OptionParser(pi);
+			System.setIn(new ByteArrayInputStream("topSecret".getBytes()));
+			parser.parse(new String[] { "-p" });
+			assertArrayEquals("topSecret".toCharArray(), pi.password);
+		} finally {
+			System.setIn(stdin);
 		}
 	}
 
@@ -162,4 +184,10 @@ public class OptionParserTest {
 class OptionNoKey {
 	@Option(opt = {}, description = "")
 	boolean verbose;
+}
+
+@Command(name = "passwd", descriptions = "test password input")
+class PasswordInput {
+	@Option(opt = "-p", secret = true, description = "safety check")
+	char[] password;
 }

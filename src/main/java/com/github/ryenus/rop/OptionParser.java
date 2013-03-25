@@ -250,9 +250,11 @@ public class OptionParser {
 		Class<?> fieldType = field.getType();
 
 		Object value = null;
-		if (fieldType == boolean.class || fieldType == Boolean.class) {
+		if (optionInfo.anno.secret()) {
+			value = Utils.readSecret(optionInfo.anno.prompt());
+		} else if (fieldType == boolean.class || fieldType == Boolean.class) {
 			value = (optionType != REVERSE);
-		} else { // TODO: support arity and password input
+		} else { // TODO: support arity
 			if (!liter.hasNext()) {
 				throw new IllegalArgumentException(String.format("Argument missing for option '%s%s'", optionType.prefix, option));
 			}
@@ -454,5 +456,15 @@ public class OptionParser {
 		 * Hide the option in the help information
 		 */
 		boolean hidden() default false;
+
+		/**
+		 * Must read the option from terminal, and do not echo input
+		 */
+		boolean secret() default false;
+
+		/**
+		 * The prompt to display when reading secret from terminal
+		 */
+		String prompt() default "password: ";
 	}
 }

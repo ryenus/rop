@@ -1,5 +1,6 @@
 package com.github.ryenus.rop;
 
+import java.io.Console;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import com.github.ryenus.rop.OptionParser.Command;
 import com.github.ryenus.rop.OptionParser.Option;
@@ -29,7 +31,7 @@ class CommandInfo {
 				if (optAnno != null) {
 					String[] opts = optAnno.opt();
 					if (opts.length == 0) {
-						throw new RuntimeException(String.format("@Option.opt is empty on field '%s' in class '%s'", field.getName(), klass.getName()));
+						throw new RuntimeException(String.format("@Option.opt is empty for '%s'", field));
 					}
 
 					OptionInfo optionInfo = new OptionInfo(field, optAnno);
@@ -194,5 +196,25 @@ class Utils {
 
 	static String[] wsplit(String sentence) { // split to words
 		return sentence.split("(?<!^)\\s+"); // look-behind
+	}
+
+	static char[] readSecret(String prompt) {
+		Console console = System.console();
+		if (console != null) {
+			char[] password = null;
+			while (password == null || password.length == 0) {
+				password = console.readPassword("%s", prompt);
+			}
+			return password;
+		}
+
+		try(Scanner s = new Scanner(System.in)) {
+			String line = null;
+			while (line == null || line.length() == 0) {
+				System.out.print(prompt);
+				line = s.nextLine();
+			}
+			return line.toCharArray();
+		}
 	}
 }

@@ -1,5 +1,9 @@
 package com.github.ryenus.rop;
 
+import java.io.BufferedReader;
+import java.io.Console;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -194,5 +198,27 @@ class Utils {
 
 	static String[] wsplit(String sentence) { // split to words
 		return sentence.split("(?<!^)\\s+"); // look-behind
+	}
+
+	static char[] readSecret(String prompt) {
+		Console console = System.console();
+		if (console != null) {
+			char[] password = null;
+			while (password == null || password.length == 0) {
+				password = console.readPassword("%s", prompt);
+			}
+			return password;
+		}
+
+		try(BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+			String line = null;
+			while (line == null || line.length() == 0) {
+				System.out.print(prompt);
+				line = br.readLine();
+			}
+			return line.toCharArray();
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot read standard input");
+		}
 	}
 }

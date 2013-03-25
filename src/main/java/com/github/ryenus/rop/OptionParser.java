@@ -4,11 +4,7 @@ import static com.github.ryenus.rop.OptionType.LONG;
 import static com.github.ryenus.rop.OptionType.REVERSE;
 import static com.github.ryenus.rop.OptionType.SHORT;
 
-import java.io.BufferedReader;
-import java.io.Console;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -255,7 +251,7 @@ public class OptionParser {
 
 		Object value = null;
 		if (optionInfo.anno.secret()) {
-			value = readSecret(optionInfo.anno.prompt());
+			value = Utils.readSecret(optionInfo.anno.prompt());
 		} else if (fieldType == boolean.class || fieldType == Boolean.class) {
 			value = (optionType != REVERSE);
 		} else { // TODO: support arity
@@ -270,29 +266,6 @@ public class OptionParser {
 			optionInfo.set = true;
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
-		}
-	}
-
-	private static char[] readSecret(String prompt) {
-		Console console = System.console();
-		if (console != null) {
-			char[] password = null;
-			while (password == null) {
-				password = console.readPassword("%s", prompt);
-			}
-			return password;
-		}
-
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		try {
-			String line = null;
-			while (line == null) {
-				System.out.print(prompt);
-				line = br.readLine();
-			}
-			return line.toCharArray();
-		} catch (IOException e) {
-			throw new RuntimeException("Cannot read standard input");
 		}
 	}
 

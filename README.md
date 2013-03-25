@@ -6,11 +6,28 @@ Rop is a lightweight command line option parser written in Java.
 
 ## Introduction
 
-Rop is designed to be minimal meanwhile convenient, to cover most usual command line parsing use cases. It can be used to build command line programs like:
+Rop is designed to be minimal meanwhile convenient, to cover most usual command line parsing use cases. You can use Rop to build command line programs like:
 
-* `mv` and `ls` -- simple commands that just do one thing
-* `git add`, `git commit` -- sub-commands, but single invocation
-* `mvn clean test` -- sub-commands with multiple invocation
+* `mv` and `ls`
+
+    - simple commands that just do one thing
+
+* `git add`, `git commit`
+
+    - sub-commands, but single invocation
+
+* `mvn clean test`
+
+    - sub-commands with multiple invocations
+
+More importantly, Rop endorses building command line option parsers the Java way. Instead of following the traditional [GetOpt](http://en.wikipedia.org/wiki/Getopt) way of building an option parser, Rop follows an approache that is:
+
+* Annotation based, and
+* Object-oriented
+
+You can build an option parser by defining Command classes and their fields annotated with the corresponding Option switches.
+
+Also, each Command can optionally have a `run()` method to define its behavior, which would be called by the parser automatically.
 
 ### How to start?
 
@@ -23,36 +40,34 @@ You can always get the latest source code from https://github.com/ryenus/rop.
 Here's a quick example to demonstrate how to use Rop:
 
 ```java
-import org.ryez.OptionParser;
-import org.ryez.OptionParser.Command;
-import org.ryez.OptionParser.Option;
+import com.github.ryenus.rop.OptionParser;
+import com.github.ryenus.rop.OptionParser.Command;
+import com.github.ryenus.rop.OptionParser.Option;
 
-@Command(name = "foo", description = "")
+@Command(name = "foo", description = "A simple command with a few options.")
 class FooCommand {
-	@Option(description = "", opt = { "-b", "--boolean" })
-	boolean b;
+	@Option(description = "explain what is being done", opt = { "-V", "--verbose" })
+	boolean verbose;
 
-	@Option(description = "", opt = { "-i", "--int" })
-	int i = 3; // default to 3
+	@Option(description = "certain number", opt = { "-n", "--number" })
+	int n = 3; // default to 3
 
+	// This method would be called automatically
+	// Both arguments of the run() methods can be omitted
 	void run(OptionParser parser, String[] params) {
-		// This method would be called automatically
-
-		// Both arguments, the parser and the params are optional
-		for (String param : params) {
-			System.out.println("\t" + param);
+		if (verbose) { // 'verbose' is set to true by the parser
+			System.out.println(n); // => 4
+			for (String param : params) {
+				System.out.println(param);
+			}
 		}
 	}
 }
 
-// assume this is called with 'java TheMain -b'
+// assume this is called with 'java TheMain --verbose -n 4 a b'
 public static void main(String[] args) {
-	FooCommand foo = new FooCommand();
-	OptionParser parser = new OptionParser(foo);
+	OptionParser parser = new OptionParser(FooCommand.class);
 	parser.parse(args);
-	if (b) { // b is set to true by the parser
-		System.out.println(foo.i); // => 3
-	}
 }
 ```
 
@@ -80,7 +95,7 @@ A Command can have a little magic. If it has a `run()` method, the parser would 
 
 In the above example,  `FooCommand.run()` would be called automatically, it would receive a reference to the parser itself, and an array which consists of all the remaining arguments.
 
-If you're not interested in getting either the parser, or the parameters, just omit it, or even both of them.
+If you're not interested in getting either the parser or the parameters, just omit any of them, or both.
 
 Note that if there're more than one `run()` method, only the first would be called.
 
@@ -140,7 +155,7 @@ If option '--help' is present, the parser will:
 
 ### Error Handling
 
-Any possible error would be thrown as a RuntimeException, or its subclass, provided with proper error massege. You might want to catch the exceptions, print the help information and exit the program.
+Any possible error would be thrown as a RuntimeException, or its subclass, provided with proper error massege. You might want to catch the exceptions, print the error message, and/or the help information before exiting the program. This is intentionally left to you so that you can control how your program behaves upon parsing errors before terminating.
 
 ## Contributing
 
@@ -158,6 +173,7 @@ Rop is released under the [MIT License](http://www.opensource.org/licenses/MIT).
 
 ## Related projects
 
+* [java-getopt](https://github.com/arenn/java-getopt)
 * [JOpt Simple](http://pholser.github.com/jopt-simple)
 * [JCommander](https://github.com/cbeust/jcommander)
 * [Commons CLI](http://commons.apache.org/proper/commons-cli/)

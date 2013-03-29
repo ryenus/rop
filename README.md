@@ -31,7 +31,17 @@ Also, each Command can optionally have a `run()` method to define its behavior, 
 
 ### How to start?
 
-Rop is available as a Maven artifact `com.github.ryenus:rop`.
+Rop is available as a Maven artifact `com.github.ryenus:rop`. Simply add this to the dependencies section in your pom.xml:
+
+```xml
+<dependency>
+    <groupId>com.github.ryenus</groupId>
+    <artifactId>rop</artifactId>
+    <version>1.0</version>
+</dependency>
+```
+
+Note that '1.0' might not be the latest version when you're reading this.
 
 You can always get the latest source code from https://github.com/ryenus/rop.
 
@@ -155,7 +165,7 @@ If option '--help' is present, the parser will:
 
 ### Error Handling
 
-Any possible error would be thrown as a RuntimeException, or its subclass, provided with proper error massege. You might want to catch the exceptions, print the error message, and/or the help information before exiting the program. This is intentionally left to you so that you can control how your program behaves upon parsing errors before terminating.
+Any possible error would be thrown as a RuntimeException, or its subclass, provided with proper error massege. You might want to catch the exceptions, print the error message and/or the help information before exiting the program. This is intentionally left to you so that you can control how your program behaves upon parsing errors before terminating.
 
 ## Contributing
 

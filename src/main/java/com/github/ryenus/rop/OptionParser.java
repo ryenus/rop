@@ -112,14 +112,14 @@ public class OptionParser {
 		byName.put(cmdName, ci);
 	}
 
-	private Object instantiate(Class<?> klass) {
+	private static Object instantiate(Class<?> klass) {
 		try {
-			Constructor<?> implicit = klass.getDeclaredConstructor();
-			implicit.setAccessible(true);
-			return implicit.newInstance();
+			Constructor<?> constr = klass.getDeclaredConstructor();
+			constr.setAccessible(true);
+			return constr.newInstance();
 		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException
 			| InvocationTargetException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(String.format("Unable to instantiate %s. Please make sure the no-arg constructor exists and is accessible. For an inner class, make sure it's static", klass), e);
 		}
 	}
 
@@ -443,7 +443,7 @@ public class OptionParser {
 		 * if there're many.
 		 */
 		String[] opt();
-
+		
 		/**
 		 * The description of the option, if too long, it would be wrapped
 		 * correctly with a 2-space indent starting from the second line.

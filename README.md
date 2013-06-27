@@ -37,11 +37,9 @@ Rop is available as a Maven artifact `com.github.ryenus:rop`. Simply add this to
 <dependency>
     <groupId>com.github.ryenus</groupId>
     <artifactId>rop</artifactId>
-    <version>1.0</version>
+    <version>${rop.version}</version>
 </dependency>
 ```
-
-Note that '1.0' might not be the latest version when you're reading this.
 
 You can always get the latest source code from https://github.com/ryenus/rop.
 
@@ -54,7 +52,7 @@ import com.github.ryenus.rop.OptionParser;
 import com.github.ryenus.rop.OptionParser.Command;
 import com.github.ryenus.rop.OptionParser.Option;
 
-@Command(name = "foo", description = "A simple command with a few options.")
+@Command(name = "foo", descriptions = "A simple command with a few options.")
 class FooCommand {
 	@Option(description = "explain what is being done", opt = { "-V", "--verbose" })
 	boolean verbose;
@@ -80,6 +78,8 @@ public static void main(String[] args) {
 	parser.parse(args);
 }
 ```
+
+Please refer to the javadoc for API details.
 
 ## Understanding Rop
 

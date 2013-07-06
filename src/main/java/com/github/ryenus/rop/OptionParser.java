@@ -355,7 +355,7 @@ public class OptionParser {
 			sb.append(ci.help(true));
 		}
 
-		sb.append(Utils.format(top.anno.notes(), true));
+		sb.append(Utils.format(top.anno.notes(), true)).append('\n');
 		System.out.print(sb.toString());
 	}
 

@@ -99,8 +99,8 @@ public class OptionParser {
 		String cmdName = cmdAnno.name();
 		CommandInfo existingCmd = byName.get(cmdName);
 		if (existingCmd != null) {
-			throw new RuntimeException(String.format("A command named '%s' is already registered by class '%s'",
-					cmdName, existingCmd.command.getClass().getName()));
+			throw new RuntimeException(String.format("Unable to register '%s' command with %s, it's already registered by %s",
+					cmdName, klass, existingCmd.command.getClass()));
 		}
 
 		byType.put(klass, instance);

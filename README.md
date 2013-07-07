@@ -2,46 +2,45 @@
 
 [![Build Status](https://travis-ci.org/ryenus/rop.png?branch=master)](https://travis-ci.org/ryenus/rop)
 
-Rop is a lightweight command line option parser written in Java.
+A lightweight command line option parser written in Java.
+
 
 ## Introduction
 
-Rop is designed to be minimal meanwhile convenient, to cover most usual command line parsing use cases. You can use Rop to build command line programs like:
+Rop is designed to be minimal meanwhile convenient, and to cover most usual command line parsing use cases listed below:
 
-* `mv` and `ls`
+| Command Line App Examples | Classification / Description
+|---------------------------|---------------------------------------------
+| `mv` and `ls`             | simple commands that just do one thing
+| `git add`, `git commit`   | sub-commands, but single invocation
+| `mvn clean test`          | sub-commands supporting multiple invocations
 
-    - simple commands that just do one thing
+All these types of command line applications can be built using Rop.
 
-* `git add`, `git commit`
-
-    - sub-commands, but single invocation
-
-* `mvn clean test`
-
-    - sub-commands with multiple invocations
-
-More importantly, Rop endorses building command line option parsers the Java way. Instead of following the traditional [GetOpt](http://en.wikipedia.org/wiki/Getopt) way of building an option parser, Rop follows an approache that is:
+More than that, Rop endorses building command line option parsers the Java way. Instead of following the traditional [GetOpt](http://en.wikipedia.org/wiki/Getopt) way of building an option parser, Rop follows an approache that is:
 
 * Annotation based, and
-* Object-oriented
+* Object oriented
 
 You can build an option parser by defining Command classes and their fields annotated with the corresponding Option switches.
 
-Also, each Command can optionally have a `run()` method to define its behavior, which would be called by the parser automatically.
+Also, each Command can optionally have a `run()` method to define its behavior, which would be called automatically after parsing.
 
-### How to start?
+
+## Getting Started
 
 Rop is available as a Maven artifact `com.github.ryenus:rop`. Simply add this to the dependencies section in your pom.xml:
 
 ```xml
 <dependency>
-    <groupId>com.github.ryenus</groupId>
-    <artifactId>rop</artifactId>
-    <version>${rop.version}</version>
+  <groupId>com.github.ryenus</groupId>
+  <artifactId>rop</artifactId>
+  <version>${rop.version}</version>
 </dependency>
 ```
 
 You can always get the latest source code from https://github.com/ryenus/rop.
+
 
 ### Usage example
 
@@ -52,46 +51,66 @@ import com.github.ryenus.rop.OptionParser;
 import com.github.ryenus.rop.OptionParser.Command;
 import com.github.ryenus.rop.OptionParser.Option;
 
+
+// 1. Here we define the Command class
 @Command(name = "foo", descriptions = "A simple command with a few options.")
-class FooCommand {
-	@Option(description = "explain what is being done", opt = { "-V", "--verbose" })
+public class FooCommand {
+
+	@Option(opt = { "-V", "--verbose" }, description = "explain what is being done")
 	boolean verbose;
 
-	@Option(description = "certain number", opt = { "-n", "--number" })
+	@Option(opt = { "-n", "--number" }, description = "certain number")
 	int n = 3; // default to 3
 
-	// This method would be called automatically
-	// Both arguments of the run() methods can be omitted
-	void run(OptionParser parser, String[] params) {
+	void run(OptionParser parser, String[] params) { // either or both args can be omitted
 		if (verbose) { // 'verbose' is set to true by the parser
-			System.out.println(n); // => 4
+			System.out.println("opt arg: " + n); // => 4
 			for (String param : params) {
-				System.out.println(param);
+				System.out.println("param: " + param); // a, b
 			}
 		}
 	}
+
+	public static void main(String[] args) { // assume this is called with 'java TheMain --verbose -n 4 a b'
+		// 2. Create the OptionParser instance along with the Command class
+		OptionParser parser = new OptionParser(FooCommand.class);
+
+		// 3. Parse the args
+		parser.parse(args);
+
+		// Here FooCommand.run() would be called automatically, so you don't have to
+	}
 }
 
-// assume this is called with 'java TheMain --verbose -n 4 a b'
-public static void main(String[] args) {
-	OptionParser parser = new OptionParser(FooCommand.class);
-	parser.parse(args);
-}
 ```
 
-Please refer to the javadoc for API details.
+In this example, we've basically done 3 things:
+
+1. define the Command class, with @Command, and @Option annotations
+2. instantiate the OptionParser class along with the Command class
+3. parse the command line args with OptionParser.parse()
+
+This is common to all comand line applications built using Rop, regardless how complex the application is.
+
+For API details, please refer to the javadoc.
+
 
 ## Understanding Rop
 
 The most significant thing in Rop is the `OptionParser` class, with which Commands are registered, then you call its `parse()` method to parse the command line arguments.
 
+
 ### The `@Command` Annotation
 
-Any vanilla class can be turned to a valid Command with the `@Command` annotation.
+Any vanilla class can be turned to a valid Command with the `@Command` annotation, regardless it has Options or not.
+
+Hence we call it a *Command class* here.
+
 
 ### The `@Option` Annotation
 
-In a Command class, those fields having the `@Option` annotation, are viable to be set from command line argments during parsing. The above example should make it pretty clear.
+In a Command class, those fields having the `@Option` annotation, are viable to be set from command line argments during parsing. The above example should make this pretty clear.
+
 
 ### Command Registration
 
@@ -99,41 +118,85 @@ The `OptionParser` class provides a `register()` method to allow a Command, i.e.
 
 A Command can also be registered by passing it directly to the constructor `OptionParser()`, so you don't have to explicitly call the `register()` method. Also, the constructor can be called with any number of Commands.
 
-### Post Parsing Hook - Method `run`
+
+### Post Parsing Hook - Method `Command.run()`
 
 A Command can have a little magic. If it has a `run()` method, the parser would call this method at the end of parsing if the Command appeared in the command line.
 
-In the above example,  `FooCommand.run()` would be called automatically, it would receive a reference to the parser itself, and an array which consists of all the remaining arguments.
+In the above example, `FooCommand.run()` would be called automatically, it would receive a reference to the parser itself, and an array which consists of all the remaining arguments.
 
 If you're not interested in getting either the parser or the parameters, just omit any of them, or both.
 
-Note that if there're more than one `run()` method, only the first would be called.
+Note that if there're more than one `run()` methods in a Command class, only the first would be called.
 
-### Sub Command
 
-Typical commands, such as [`mv`](http://en.wikipedia.org/wiki/Mv) and [`ls`](http://en.wikipedia.org/wiki/Ls) in Unix, are quite simple, they're designed to [do one thing and do it well](http://en.wikipedia.org/wiki/Unix_philosophy).
+### Using Sub-commands
 
-However, not everything is simple. [Git](http://git-scm.com/) provides a bunch of sub-commands to do many different things, such as `git add`, `git commit` and `git log`.
+Typical commands, such as [`mv`](http://en.wikipedia.org/wiki/Mv) and [`ls`](http://en.wikipedia.org/wiki/Ls) in Unix, are quite simple, they're designed to [do one thing and do it well](http://en.wikipedia.org/wiki/Unix_philosophy). It needs just one Command class to build such a simple command line application. However, not everything is simple like this.
 
-With Rop, you can register just one Command to build a simple command like `mv`, you can also register multiple Commands to support sub-commands like Git.
+Often, your command line application needs to do more than one thing, naturally you'll need more than one Command classes.
 
-Though Git provides many sub-commands, you can only use one sub-command at a time, for example, in `git add ... commit ...`, the argument 'commit' loses its magic and would be treated as something to be added with `git add`, not the sub-command `git commit`.
+
+#### The Parent Command
+
+Please note that besides all the sub-commands, as with `git add`, and `git commit`, you need a *main* Command class as the parent.
+
+The parent Command usually becomes a no-action Command, it's often used to handle global options, especially `--version`, and `--help`.
+
+
+#### Allowing only One Sub-command Being Called
+
+Certain command line applications, for example, [Git](http://git-scm.com/) provides a bunch of sub-commands to do many different things, such as `git add`, `git commit` and `git log`.
+
+By default, Rop only allows one sub-command to be called on the command line, which is the case with Git.
+
+This is done by calling the 1-arg version of `OptionParser#parse()`, i.e.:
+
+```java
+parser.parse(args);
+```
+
+Though Git provides many sub-commands, as with the default parsing behavior, you can only use one sub-command at a time, for example, in `git add ... commit ...`, the argument 'commit' loses its magic and would be treated as something to be added with `git add`, not the sub-command `git commit`.
+
+#### Allowing Multiple Sub-commands to Be Called Together
 
 But for [Ant](http://ant.apache.org/) and [Maven](http://maven.apache.org/), it's a different story. As in `mvn clean test`, you can run multiple sub-commands together. Can we do that as well? Sure, it's actually very simple:
 
 Rather than calling
 
 ```java
-parser.parse(args)
+parser.parse(args);
 ```
 
 instead, call
 
 ```java
-parser.parse(args, true)
+parser.parse(args, true);
 ```
 
 The extra boolean argument, when set to 'true', tells the parser to recognize all the sub-commands it detected. For each properly recognized sub-command, its `run()` method, if exists, would be called, in the order they appeared on the command line.
+
+### Managed Instance Objects of Command Classes
+
+Internally Rop helps manage all the instance objects of registered Command classes, which makes it possible to get the instance object of any registered Command class, e.g.:
+
+```java
+parser = new OptionParser(FooCommand.class); // register with class FooCommand
+
+parser.get(FooCommand.class); // this is how to get the instance object for FooCommand class
+```
+
+A typical usage of this is in your `Command#run()` method:
+
+```java
+run(OptionParser parser, String[] params) {
+  FooCommand foo = parser.get(FooCommand.class);
+  System.out.println(foo.bar);
+}
+```
+
+This allows your Commands to be loosely decoupled and flexibly reused.
+
 
 ### Supported Field Types and Default Values
 
@@ -165,7 +228,7 @@ If option '--help' is present, the parser will:
 
 ### Error Handling
 
-Any possible error would be thrown as a RuntimeException, or its subclass, provided with proper error massege. You might want to catch the exceptions, print the error message and/or the help information before exiting the program. This is intentionally left to you so that you can control how your program behaves upon parsing errors before terminating.
+Any possible error would be thrown as a RuntimeException, or its subclass, provided with proper error massege. You might want to catch the exception, print the error message and/or the help information before exiting the program. This task is intentionally left to you so that you can control how your program behaves upon parsing errors before terminating.
 
 ## Contributing
 

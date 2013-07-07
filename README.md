@@ -42,7 +42,7 @@ Rop is available as a Maven artifact `com.github.ryenus:rop`. Simply add this to
 You can always get the latest source code from https://github.com/ryenus/rop.
 
 
-### Usage example
+### Usage Example
 
 Here's a quick example to demonstrate how to use Rop:
 
@@ -86,8 +86,8 @@ public class FooCommand {
 
 In this example, we've basically done 3 things:
 
-1. define the Command class, with @Command, and @Option annotations
-2. instantiate the OptionParser class along with the Command class
+1. define the Command class, with `@Command` and `@Option` annotations
+2. instantiate the `OptionParser` class with the Command class as the arguement to have it registered
 3. parse the command line args with OptionParser.parse()
 
 This is common to all comand line applications built using Rop, regardless how complex the application is.
@@ -104,7 +104,7 @@ The most significant thing in Rop is the `OptionParser` class, with which Comman
 
 Any vanilla class can be turned to a valid Command with the `@Command` annotation, regardless it has Options or not.
 
-Hence we call it a *Command class* here.
+Hence we call it a **Command class**.
 
 
 ### The `@Option` Annotation
@@ -119,7 +119,7 @@ The `OptionParser` class provides a `register()` method to allow a Command, i.e.
 A Command can also be registered by passing it directly to the constructor `OptionParser()`, so you don't have to explicitly call the `register()` method. Also, the constructor can be called with any number of Commands.
 
 
-### Post Parsing Hook - Method `Command.run()`
+### Post Parsing Hook - Method `Command#run()`
 
 A Command can have a little magic. If it has a `run()` method, the parser would call this method at the end of parsing if the Command appeared in the command line.
 

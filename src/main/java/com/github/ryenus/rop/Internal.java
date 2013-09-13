@@ -1,6 +1,5 @@
 package com.github.ryenus.rop;
 
-
 import java.io.Console;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -15,12 +14,12 @@ import java.util.Scanner;
 import com.github.ryenus.rop.OptionParser.Command;
 import com.github.ryenus.rop.OptionParser.Option;
 
-class Internal {
+class CommandInfo {
 	Object command;
 	Command anno;
 	Map<String, OptionInfo> map;
 
-	Internal(Object command, Command anno) {
+	CommandInfo(Object command, Command anno) {
 		this.command = command;
 		this.anno = anno;
 
@@ -120,9 +119,9 @@ enum OptionType {
 class Utils {
 	private static final String PADDING = String.format("%36s", "");
 
-	static final Comparator<Internal> CMD_COMPARATOR = new Comparator<Internal>() {
+	static final Comparator<CommandInfo> CMD_COMPARATOR = new Comparator<CommandInfo>() {
 		@Override
-		public int compare(Internal o1, Internal o2) {
+		public int compare(CommandInfo o1, CommandInfo o2) {
 			return o1.anno.name().compareTo(o2.anno.name());
 		}
 	};

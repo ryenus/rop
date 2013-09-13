@@ -13,8 +13,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,8 +43,8 @@ public class OptionParser {
 	 * @see #register(Object)
 	 */
 	public OptionParser(Object... commands) {
-		this.byType = new HashMap<>();
-		this.byName = new HashMap<>();
+		this.byType = new HashMap<Class<?>, Object>();
+		this.byName = new HashMap<String, CommandInfo>();
 
 		for (Object command : commands) {
 			if (command instanceof Collection<?>) {
@@ -113,13 +111,14 @@ public class OptionParser {
 	}
 
 	private static Object instantiate(Class<?> klass) {
+		Constructor<?> constr;
 		try {
-			Constructor<?> constr = klass.getDeclaredConstructor();
+			constr = klass.getDeclaredConstructor();
 			constr.setAccessible(true);
 			return constr.newInstance();
-		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException
-			| InvocationTargetException e) {
-			throw new RuntimeException(String.format("Unable to instantiate %s. Please make sure the no-arg constructor exists and is accessible. For an inner class, make sure it's static", klass), e);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -171,8 +170,8 @@ public class OptionParser {
 			throw new RuntimeException("No Command registered");
 		}
 
-		Map<Object, String[]> cpm = new LinkedHashMap<>();
-		List<String> params = new ArrayList<>();
+		Map<Object, String[]> cpm = new LinkedHashMap<Object, String[]>();
+		List<String> params = new ArrayList<String>();
 		cci = top;
 
 		ListIterator<String> lit = Arrays.asList(args).listIterator();
@@ -226,7 +225,7 @@ public class OptionParser {
 
 	private static void stage(Map<Object, String[]> cpm, CommandInfo ci, List<String> params) {
 		cpm.put(ci.command, params.toArray(new String[params.size()]));
-		for (OptionInfo oi : new HashSet<>(ci.map.values())) {
+		for (OptionInfo oi : new HashSet<OptionInfo>(ci.map.values())) {
 			if (oi.anno.required() && !oi.set) {
 				throw new RuntimeException(String.format("Required option not found for field %s", oi.field));
 			}
@@ -264,7 +263,9 @@ public class OptionParser {
 		try {
 			field.set(cci.command, value);
 			optionInfo.set = true;
-		} catch (IllegalArgumentException | IllegalAccessException e) {
+		} catch (IllegalArgumentException  e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -288,8 +289,8 @@ public class OptionParser {
 			return value.charAt(0);
 		} else if (type == File.class) {
 			return new File(value);
-		} else if (type == Path.class) {
-			return Paths.get(value);
+//		} else if (type == Path.class) {
+//			return Paths.get(value);
 		}
 		return value;
 	}
@@ -303,39 +304,68 @@ public class OptionParser {
 	private Object invokeRun(Object cmd, String[] params) {
 		try {
 			try {
-				Method run = cmd.getClass().getDeclaredMethod("run", OptionParser.class, String[].class);
-				run.setAccessible(true);
-				return run.invoke(cmd, this, params);
-			} catch (NoSuchMethodException e) {
+				return invokeRunEx(cmd, params);
+			} catch (Exception e) {
 				try {
-					Method run = cmd.getClass().getDeclaredMethod("run", String[].class, OptionParser.class);
-					run.setAccessible(true);
-					return run.invoke(cmd, params, this);
-				} catch (NoSuchMethodException e1) {
+					return invokeRunEx2(cmd, params);
+				} catch (Exception e1) {
 					try {
-						Method run = cmd.getClass().getDeclaredMethod("run", String[].class);
-						run.setAccessible(true);
-						return run.invoke(cmd, (Object) params); //bypass the var-args magic
-					} catch (NoSuchMethodException e2) {
+						return invokeRunEx3(cmd, params);
+					} catch (Exception e2) {
 						try {
-							Method run = cmd.getClass().getDeclaredMethod("run", OptionParser.class);
-							run.setAccessible(true);
-							return run.invoke(cmd, this);
-						} catch (NoSuchMethodException e3) {
+							return invokeRunEx4(cmd);
+						} catch (Exception e3) {
 							try {
-								Method run = cmd.getClass().getDeclaredMethod("run");
-								run.setAccessible(true);
-								return run.invoke(cmd);
-							} catch (NoSuchMethodException e4) {
+								return invokeRunEx5(cmd);
+							} catch (Exception e4) {
 								return null;
 							}
 						}
 					}
 				}
 			}
-		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+		} catch (SecurityException  e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private Object invokeRunEx5(Object cmd) throws NoSuchMethodException,
+			SecurityException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException {
+		Method run = cmd.getClass().getDeclaredMethod("run");
+		run.setAccessible(true);
+		return run.invoke(cmd);
+	}
+
+	private Object invokeRunEx4(Object cmd) throws NoSuchMethodException,
+			SecurityException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException {
+		Method run = cmd.getClass().getDeclaredMethod("run", OptionParser.class);
+		run.setAccessible(true);
+		return run.invoke(cmd, this);
+	}
+
+	private Object invokeRunEx3(Object cmd, String[] params)
+			throws NoSuchMethodException, SecurityException,
+			IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException {
+		Method run = cmd.getClass().getDeclaredMethod("run", String[].class);
+		run.setAccessible(true);
+		return run.invoke(cmd, (Object) params); //bypass the var-args magic
+	}
+
+	private Object invokeRunEx2(Object cmd, String[] params)
+			throws Exception {
+		Method run = cmd.getClass().getDeclaredMethod("run", String[].class, OptionParser.class);
+		run.setAccessible(true);
+		return run.invoke(cmd, params, this);
+	}
+
+	private Object invokeRunEx(Object cmd, String[] params)
+			throws Exception {
+		Method run = cmd.getClass().getDeclaredMethod("run", OptionParser.class, String[].class);
+		run.setAccessible(true);
+		return run.invoke(cmd, this, params);
 	}
 
 	/**
@@ -347,7 +377,7 @@ public class OptionParser {
 		sb.append(top.help(false));
 		sb.append(String.format("\n      --help %20s display this help and exit", ""));
 
-		List<CommandInfo> cmds = new ArrayList<>(byName.values());
+		List<CommandInfo> cmds = new ArrayList<CommandInfo>(byName.values());
 		cmds.remove(top);
 		Collections.sort(cmds, Utils.CMD_COMPARATOR);
 		for (CommandInfo ci : cmds) {

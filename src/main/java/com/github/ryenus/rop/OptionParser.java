@@ -32,9 +32,9 @@ import java.util.Map;
  */
 public class OptionParser {
 	private final Map<Class<?>, Object> byType;
-	private final Map<String, Internal> byName;
-	private Internal top;
-	private Internal cci;
+	private final Map<String, CommandInfo> byName;
+	private CommandInfo top;
+	private CommandInfo cci;
 
 	/**
 	 * Construct an OptionParse instance. It also accepts one or a group of,
@@ -44,7 +44,7 @@ public class OptionParser {
 	 */
 	public OptionParser(Object... commands) {
 		this.byType = new HashMap<Class<?>, Object>();
-		this.byName = new HashMap<String, Internal>();
+		this.byName = new HashMap<String, CommandInfo>();
 
 		for (Object command : commands) {
 			if (command instanceof Collection<?>) {
@@ -95,14 +95,14 @@ public class OptionParser {
 		}
 
 		String cmdName = cmdAnno.name();
-		Internal existingCmd = byName.get(cmdName);
+		CommandInfo existingCmd = byName.get(cmdName);
 		if (existingCmd != null) {
 			throw new RuntimeException(String.format("Unable to register '%s' command with %s, it's already registered by %s",
 					cmdName, klass, existingCmd.command.getClass()));
 		}
 
 		byType.put(klass, instance);
-		Internal ci = new Internal(instance, cmdAnno);
+		CommandInfo ci = new CommandInfo(instance, cmdAnno);
 		if (top == null) {
 			top = ci;
 		}
@@ -183,7 +183,7 @@ public class OptionParser {
 				System.exit(0);
 			}
 
-			Internal ci = byName.get(arg);
+			CommandInfo ci = byName.get(arg);
 			if (ci != null) {
 				if (ci == cci || cpm.containsKey(ci.command) || (!multi && cpm.size() > 0)) {
 					params.add(arg);
@@ -223,7 +223,7 @@ public class OptionParser {
 		return cpm;
 	}
 
-	private static void stage(Map<Object, String[]> cpm, Internal ci, List<String> params) {
+	private static void stage(Map<Object, String[]> cpm, CommandInfo ci, List<String> params) {
 		cpm.put(ci.command, params.toArray(new String[params.size()]));
 		for (OptionInfo oi : new HashSet<OptionInfo>(ci.map.values())) {
 			if (oi.anno.required() && !oi.set) {
@@ -377,10 +377,10 @@ public class OptionParser {
 		sb.append(top.help(false));
 		sb.append(String.format("\n      --help %20s display this help and exit", ""));
 
-		List<Internal> cmds = new ArrayList<Internal>(byName.values());
+		List<CommandInfo> cmds = new ArrayList<CommandInfo>(byName.values());
 		cmds.remove(top);
 		Collections.sort(cmds, Utils.CMD_COMPARATOR);
-		for (Internal ci : cmds) {
+		for (CommandInfo ci : cmds) {
 			sb.append(String.format("\n\n[Command '%s']\n\n", ci.anno.name()));
 			sb.append(ci.help(true));
 		}

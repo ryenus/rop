@@ -1,5 +1,6 @@
 package com.github.ryenus.rop;
 
+
 import java.io.Console;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -14,16 +15,16 @@ import java.util.Scanner;
 import com.github.ryenus.rop.OptionParser.Command;
 import com.github.ryenus.rop.OptionParser.Option;
 
-class CommandInfo {
+class Internal {
 	Object command;
 	Command anno;
 	Map<String, OptionInfo> map;
 
-	CommandInfo(Object command, Command anno) {
+	Internal(Object command, Command anno) {
 		this.command = command;
 		this.anno = anno;
 
-		map = new HashMap<>();
+		map = new HashMap<String, OptionInfo>();
 		Class<?> klass = command.getClass();
 		for (Field field : klass.getDeclaredFields()) {
 			if (!field.isSynthetic()) {
@@ -31,18 +32,25 @@ class CommandInfo {
 				if (optAnno != null) {
 					String[] opts = optAnno.opt();
 					if (opts.length == 0) {
-						throw new RuntimeException(String.format("@Option.opt is empty for '%s'", field));
+						throw new RuntimeException(String.format(
+								"@Option.opt is empty for '%s'", field));
 					}
 
 					if (optAnno.required() && optAnno.hidden()) {
-						throw new RuntimeException(String.format("Required option '%s' cannot be hidden for '%s'", opts[0], field));
+						throw new RuntimeException(
+								String.format(
+										"Required option '%s' cannot be hidden for '%s'",
+										opts[0], field));
 					}
 
 					OptionInfo optionInfo = new OptionInfo(field, optAnno);
 					for (String opt : opts) {
 						String key = opt.replaceFirst("^(-)+", "");
 						if (map.containsKey(key)) {
-							throw new RuntimeException(String.format("Conflict option '%s' found in '%s' and '%s'", opt, map.get(key).field, field));
+							throw new RuntimeException(
+									String.format(
+											"Conflict option '%s' found in '%s' and '%s'",
+											opt, map.get(key).field, field));
 						}
 						map.put(key, optionInfo);
 					}
@@ -56,8 +64,8 @@ class CommandInfo {
 		String cmdDesc = Utils.format(anno.descriptions(), false);
 		sb.append(cmdDesc);
 
-		List<String> list = new ArrayList<>(map.size());
-		for (OptionInfo oi : new HashSet<>(map.values())) {
+		List<String> list = new ArrayList<String>(map.size());
+		for (OptionInfo oi : new HashSet<OptionInfo>(map.values())) {
 			if (!oi.anno.hidden()) {
 				list.add(oi.help());
 			}
@@ -112,9 +120,9 @@ enum OptionType {
 class Utils {
 	private static final String PADDING = String.format("%36s", "");
 
-	static final Comparator<CommandInfo> CMD_COMPARATOR = new Comparator<CommandInfo>() {
+	static final Comparator<Internal> CMD_COMPARATOR = new Comparator<Internal>() {
 		@Override
-		public int compare(CommandInfo o1, CommandInfo o2) {
+		public int compare(Internal o1, Internal o2) {
 			return o1.anno.name().compareTo(o2.anno.name());
 		}
 	};
@@ -185,7 +193,8 @@ class Utils {
 			if (line.length() + word.length() <= width) {
 				line.append(word).append(' ');
 			} else {
-				para.append(line.deleteCharAt(line.length() - 1)).append("\n").append(padding);
+				para.append(line.deleteCharAt(line.length() - 1)).append("\n")
+						.append(padding);
 				line = new StringBuilder().append(word).append(' ');
 			}
 		}
@@ -210,14 +219,16 @@ class Utils {
 			}
 			return password;
 		}
-
-		try(Scanner s = new Scanner(System.in)) {
+		try {
+			Scanner s = new Scanner(System.in);
 			String line = null;
 			while (line == null || line.length() == 0) {
 				System.out.print(prompt);
 				line = s.nextLine();
 			}
 			return line.toCharArray();
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 }

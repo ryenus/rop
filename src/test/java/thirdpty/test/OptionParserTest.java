@@ -7,13 +7,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.RandomAccessFile;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.security.Permission;
 
 import org.junit.Test;
@@ -81,9 +78,12 @@ public class OptionParserTest {
 
 		try {
 			URI uri = getClass().getClassLoader().getResource("help.out").toURI();
-			byte[] bytes = Files.readAllBytes(new File(uri).toPath());
+			RandomAccessFile file = new RandomAccessFile(uri.getPath(), "r");
+			byte[] bytes = new byte[(int) file.length()];
+			file.read(bytes);
+			file.close();
 			assertArrayEquals(bytes, baos.toByteArray());
-		} catch (IOException | URISyntaxException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}

@@ -110,13 +110,19 @@ class Utils {
 			return password;
 		}
 
-		try(Scanner s = new Scanner(System.in)) {
+		Scanner s = null;
+		try {
+			s = new Scanner(System.in);
 			String line = null;
 			while (line == null || line.length() == 0) {
 				System.out.print(prompt);
 				line = s.nextLine();
 			}
 			return line.toCharArray();
+		} finally {
+			if (s != null) {
+				s.close();
+			}
 		}
 	}
 }

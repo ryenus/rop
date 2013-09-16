@@ -20,7 +20,7 @@ class CommandInfo {
 		this.command = command;
 		this.anno = anno;
 
-		map = new HashMap<>();
+		map = new HashMap<String, OptionInfo>();
 		Class<?> klass = command.getClass();
 		for (Field field : klass.getDeclaredFields()) {
 			if (!field.isSynthetic()) {
@@ -53,8 +53,8 @@ class CommandInfo {
 		String cmdDesc = Utils.format(anno.descriptions(), false);
 		sb.append(cmdDesc);
 
-		List<String> list = new ArrayList<>(map.size());
-		for (OptionInfo oi : new HashSet<>(map.values())) {
+		List<String> list = new ArrayList<String>(map.size());
+		for (OptionInfo oi : new HashSet<OptionInfo>(map.values())) {
 			if (!oi.anno.hidden()) {
 				list.add(oi.help());
 			}

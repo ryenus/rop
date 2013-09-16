@@ -11,7 +11,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,8 +44,8 @@ public class OptionParser {
 	 * @see #register(Object)
 	 */
 	public OptionParser(Object... commands) {
-		this.byType = new HashMap<>();
-		this.byName = new HashMap<>();
+		this.byType = new HashMap<Class<?>, Object>();
+		this.byName = new HashMap<String, CommandInfo>();
 
 		for (Object command : commands) {
 			if (command instanceof Collection<?>) {
@@ -117,8 +116,7 @@ public class OptionParser {
 			Constructor<?> constr = klass.getDeclaredConstructor();
 			constr.setAccessible(true);
 			return constr.newInstance();
-		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException
-			| InvocationTargetException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(String.format("Unable to instantiate %s. Please make sure the no-arg constructor exists and is accessible. For an inner class, make sure it's static", klass), e);
 		}
 	}
@@ -171,8 +169,8 @@ public class OptionParser {
 			throw new RuntimeException("No Command registered");
 		}
 
-		Map<Object, String[]> cpm = new LinkedHashMap<>();
-		List<String> params = new ArrayList<>();
+		Map<Object, String[]> cpm = new LinkedHashMap<Object, String[]>();
+		List<String> params = new ArrayList<String>();
 		cci = top;
 
 		ListIterator<String> lit = Arrays.asList(args).listIterator();
@@ -226,7 +224,7 @@ public class OptionParser {
 
 	private static void stage(Map<Object, String[]> cpm, CommandInfo ci, List<String> params) {
 		cpm.put(ci.command, params.toArray(new String[params.size()]));
-		for (OptionInfo oi : new HashSet<>(ci.map.values())) {
+		for (OptionInfo oi : new HashSet<OptionInfo>(ci.map.values())) {
 			if (oi.anno.required() && !oi.set) {
 				throw new RuntimeException(String.format("Required option not found for field %s", oi.field));
 			}
@@ -264,7 +262,7 @@ public class OptionParser {
 		try {
 			field.set(cci.command, value);
 			optionInfo.set = true;
-		} catch (IllegalArgumentException | IllegalAccessException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -333,7 +331,7 @@ public class OptionParser {
 					}
 				}
 			}
-		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -347,7 +345,7 @@ public class OptionParser {
 		sb.append(top.help(false));
 		sb.append(String.format("\n      --help %20s display this help and exit", ""));
 
-		List<CommandInfo> cmds = new ArrayList<>(byName.values());
+		List<CommandInfo> cmds = new ArrayList<CommandInfo>(byName.values());
 		cmds.remove(top);
 		Collections.sort(cmds, Utils.CMD_COMPARATOR);
 		for (CommandInfo ci : cmds) {

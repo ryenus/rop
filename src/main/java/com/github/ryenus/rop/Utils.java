@@ -3,9 +3,13 @@ package com.github.ryenus.rop;
 import java.io.Console;
 import java.util.Comparator;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 class Utils {
 	private static final String PADDING = String.format("%36s", "");
+	private static final Pattern OPT_PREFIX = Pattern.compile("^-{1,2}"); // leading '-' or '--'
+	private static final Pattern CHAR_SPLITTER = Pattern.compile("(?!^)"); // look-ahead, do not split at '^'
+	private static final Pattern WORD_SPLITTER = Pattern.compile("(?<!^)\\s+"); // look-behind
 
 	static final Comparator<CommandInfo> CMD_COMPARATOR = new Comparator<CommandInfo>() {
 		@Override
@@ -17,13 +21,13 @@ class Utils {
 	static final Comparator<String> OPT_COMPARATOR = new Comparator<String>() {
 		@Override
 		public int compare(String s1, String s2) {
-			return strip(s1).compareTo(strip(s2));
-		}
-
-		private String strip(String optStr) {
-			return optStr.substring(0, 32).replaceFirst("^\\s*-*", "");
+			return stripOptPrefix(s1).compareTo(stripOptPrefix(s2));
 		}
 	};
+
+	private static String stripOptPrefix(String optStr) {
+		return OPT_PREFIX.matcher(optStr).replaceFirst("");
+	}
 
 	static String formatOpts(String[] opts) {
 		String shortOpt = null, longOpt = null;
@@ -89,11 +93,11 @@ class Utils {
 	}
 
 	static String[] csplit(String word) { // split to chars
-		return word.split("(?!^)"); // look-ahead, do not split at '^'
+		return CHAR_SPLITTER.split(word);
 	}
 
 	static String[] wsplit(String sentence) { // split to words
-		return sentence.split("(?<!^)\\s+"); // look-behind
+		return WORD_SPLITTER.split(sentence);
 	}
 
 	static char[] readSecret(String prompt) {

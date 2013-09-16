@@ -4,9 +4,9 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import com.github.ryenus.rop.OptionParser;
-
 import thirdpty.test.negative.NoDefaultConstructor;
+
+import com.github.ryenus.rop.OptionParser;
 
 public class CommandConstructorTest {
 

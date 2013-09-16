@@ -12,8 +12,6 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -99,7 +97,7 @@ public class OptionParser {
 		CommandInfo existingCmd = byName.get(cmdName);
 		if (existingCmd != null) {
 			throw new RuntimeException(String.format("Unable to register '%s' command with %s, it's already registered by %s",
-					cmdName, klass, existingCmd.command.getClass()));
+				cmdName, klass, existingCmd.command.getClass()));
 		}
 
 		byType.put(klass, instance);
@@ -286,8 +284,6 @@ public class OptionParser {
 			return value.charAt(0);
 		} else if (type == File.class) {
 			return new File(value);
-		} else if (type == Path.class) {
-			return Paths.get(value);
 		}
 		return value;
 	}
@@ -441,7 +437,7 @@ public class OptionParser {
 		 * if there're many.
 		 */
 		String[] opt();
-		
+
 		/**
 		 * The description of the option, if too long, it would be wrapped
 		 * correctly with a 2-space indent starting from the second line.

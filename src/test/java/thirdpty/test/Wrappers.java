@@ -1,7 +1,6 @@
 package thirdpty.test;
 
 import java.io.File;
-import java.nio.file.Path;
 
 import com.github.ryenus.rop.OptionParser.Command;
 import com.github.ryenus.rop.OptionParser.Option;
@@ -40,7 +39,4 @@ public class Wrappers {
 
 	@Option(description = "", opt = { "-f", "--file" })
 	File file;
-
-	@Option(description = "", opt = { "-p", "--path" })
-	Path path;
 }

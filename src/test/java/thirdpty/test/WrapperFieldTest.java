@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.Map;
 
 import org.junit.Test;
@@ -32,10 +31,9 @@ public class WrapperFieldTest {
 		assertEquals(null, w.o);
 		assertEquals(null, w.str);
 		assertEquals(null, w.file);
-		assertEquals(null, w.path);
 
 		Map<Object, String[]> result;
-		String[] args = "+b -B 1 -c a -d 0.1 -F 0.2 -i 010 -l 0xf -S -32768 -o obj -s abc -f src -p src/main".split("\\s+");
+		String[] args = "+b -B 1 -c a -d 0.1 -F 0.2 -i 010 -l 0xf -S -32768 -o obj -s abc -f src".split("\\s+");
 		result = parser.parse(args);
 		String[] params = result.get(w);
 
@@ -50,7 +48,6 @@ public class WrapperFieldTest {
 		assertEquals("obj", w.o);
 		assertEquals("abc", w.str);
 		assertEquals(new File("src"), w.file);
-		assertEquals(Paths.get("src", "main"), w.path);
 
 		assertEquals(0, params.length);
 	}

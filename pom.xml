@@ -9,7 +9,7 @@
 
 	<groupId>com.github.ryenus</groupId>
 	<artifactId>rop</artifactId>
-	<version>1.2-SNAPSHOT</version>
+	<version>1.1.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Rop</name>
@@ -30,7 +30,6 @@
 	<developers>
 		<developer>
 			<id>ryenus</id>
-			<name>Roger Ye</name>
 		</developer>
 	</developers>
 
@@ -38,6 +37,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.6</maven.compiler.source>
 		<maven.compiler.target>1.6</maven.compiler.target>
+		<maven.source.classifier>jdk6-sources</maven.source.classifier>
 	</properties>
 
 	<dependencies>
@@ -64,6 +64,10 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
 			</plugin>
 		</plugins>
 	</build>

@@ -23,9 +23,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>https://github.com/ryenus/rop</connection>
-		<url>scm:git:https://github.com/ryenus/rop</url>
-		<developerConnection>scm:git:git@github.com:ryenus/rop</developerConnection>
+		<url>https://github.com/ryenus/rop</url>
+		<connection>scm:git:https://github.com/ryenus/rop</connection>
+		<developerConnection>scm:git:ssh://git@github.com:ryenus/rop</developerConnection>
 	</scm>
 	<developers>
 		<developer>

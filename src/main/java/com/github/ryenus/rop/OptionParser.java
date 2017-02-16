@@ -242,7 +242,7 @@ public class OptionParser {
 	private void parseOpt(String option, ListIterator<String> liter, OptionType optionType) {
 		OptionInfo optionInfo = cci.map.get(option);
 		if (optionInfo == null) {
-			throw new IllegalArgumentException(String.format("Unknown option '%s", option));
+			throw new IllegalArgumentException(String.format("Unknown option '%s'", option));
 		}
 
 		Field field = optionInfo.field;

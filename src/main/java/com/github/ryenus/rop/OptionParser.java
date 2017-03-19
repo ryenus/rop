@@ -295,8 +295,8 @@ public class OptionParser {
 	}
 
 	private void invokeRun(Map<Object, String[]> cpm) {
-		for (Object cmd : cpm.keySet()) {
-			invokeRun(cmd, cpm.get(cmd));
+		for (Map.Entry<Object, String[]> entry : cpm.entrySet()) {
+			invokeRun(entry.getKey(), entry.getValue());
 		}
 	}
 

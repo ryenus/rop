@@ -1,0 +1,334 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Rop by ryenus</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <header>
+        <h1>Rop</h1>
+        <p>A lightweight command line option parser written in Java</p>
+      </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/ryenus/rop" class="button fork"><strong>View On GitHub</strong></a>
+        <div class="downloads">
+          <span>Downloads:</span>
+          <ul>
+            <li><a href="https://github.com/ryenus/rop/zipball/master" class="button">ZIP</a></li>
+            <li><a href="https://github.com/ryenus/rop/tarball/master" class="button">TAR</a></li>
+          </ul>
+        </div>
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul></ul>
+      </nav>
+      <section>
+        <h1>
+<a name="rop" class="anchor" href="#rop"><span class="octicon octicon-link"></span></a>Rop</h1>
+
+<p><a href="https://travis-ci.org/ryenus/rop"><img src="https://travis-ci.org/ryenus/rop.png?branch=master" alt="Build Status"></a></p>
+
+<p>A lightweight command line option parser written in Java.</p>
+
+<h2>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>Rop is designed to be minimal meanwhile convenient, and to cover most usual command line parsing use cases listed below:</p>
+
+<table>
+<tr>
+<th>Command Line App Examples</th>
+<th>Classification / Description</th>
+</tr>
+<tr>
+<td>
+<code>mv</code> and <code>ls</code>
+</td>
+<td>simple commands that just do one thing</td>
+</tr>
+<tr>
+<td>
+<code>git add</code>, <code>git commit</code>
+</td>
+<td>sub-commands, but single invocation</td>
+</tr>
+<tr>
+<td><code>mvn clean test</code></td>
+<td>sub-commands supporting multiple invocations</td>
+</tr>
+</table><p>All these types of command line applications can be built using Rop.</p>
+
+<p>More than that, Rop endorses building command line option parsers the Java way. Instead of following the traditional <a href="http://en.wikipedia.org/wiki/Getopt">GetOpt</a> way of building an option parser, Rop follows an approache that is:</p>
+
+<ul>
+<li>Annotation based, and</li>
+<li>Object oriented</li>
+</ul><p>You can build an option parser by defining Command classes and their fields annotated with the corresponding Option switches.</p>
+
+<p>Also, each Command can optionally have a <code>run()</code> method to define its behavior, which would be called automatically after parsing.</p>
+
+<h2>
+<a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting Started</h2>
+
+<p>Rop is available as a Maven artifact <code>com.github.ryenus:rop</code>. Simply add this to the dependencies section in your pom.xml:</p>
+
+<div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>com.github.ryenus<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>rop<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>${rop.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+
+<p>You can always get the latest source code from <a href="https://github.com/ryenus/rop">https://github.com/ryenus/rop</a>.</p>
+
+<h3>
+<a name="usage-example" class="anchor" href="#usage-example"><span class="octicon octicon-link"></span></a>Usage example</h3>
+
+<p>Here's a quick example to demonstrate how to use Rop:</p>
+
+<div class="highlight"><pre><span class="kn">import</span> <span class="nn">com.github.ryenus.rop.OptionParser</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.github.ryenus.rop.OptionParser.Command</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.github.ryenus.rop.OptionParser.Option</span><span class="o">;</span>
+
+
+<span class="c1">// 1. Here we define the Command class</span>
+<span class="nd">@Command</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"foo"</span><span class="o">,</span> <span class="n">descriptions</span> <span class="o">=</span> <span class="s">"A simple command with a few options."</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">FooCommand</span> <span class="o">{</span>
+
+    <span class="nd">@Option</span><span class="o">(</span><span class="n">opt</span> <span class="o">=</span> <span class="o">{</span> <span class="s">"-V"</span><span class="o">,</span> <span class="s">"--verbose"</span> <span class="o">},</span> <span class="n">description</span> <span class="o">=</span> <span class="s">"explain what is being done"</span><span class="o">)</span>
+    <span class="kt">boolean</span> <span class="n">verbose</span><span class="o">;</span>
+
+    <span class="nd">@Option</span><span class="o">(</span><span class="n">opt</span> <span class="o">=</span> <span class="o">{</span> <span class="s">"-n"</span><span class="o">,</span> <span class="s">"--number"</span> <span class="o">},</span> <span class="n">description</span> <span class="o">=</span> <span class="s">"certain number"</span><span class="o">)</span>
+    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="o">;</span> <span class="c1">// default to 3</span>
+
+    <span class="kt">void</span> <span class="nf">run</span><span class="o">(</span><span class="n">OptionParser</span> <span class="n">parser</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">params</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// either or both args can be omitted</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">verbose</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// 'verbose' is set to true by the parser</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"opt arg: "</span> <span class="o">+</span> <span class="n">n</span><span class="o">);</span> <span class="c1">// =&gt; 4</span>
+            <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">param</span> <span class="o">:</span> <span class="n">params</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"param: "</span> <span class="o">+</span> <span class="n">param</span><span class="o">);</span> <span class="c1">// a, b</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// assume this is called with 'java TheMain --verbose -n 4 a b'</span>
+        <span class="c1">// 2. Create the OptionParser instance along with the Command class</span>
+        <span class="n">OptionParser</span> <span class="n">parser</span> <span class="o">=</span> <span class="k">new</span> <span class="n">OptionParser</span><span class="o">(</span><span class="n">FooCommand</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+        <span class="c1">// 3. Parse the args</span>
+        <span class="n">parser</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">args</span><span class="o">);</span>
+
+        <span class="c1">// Here FooCommand.run() would be called automatically, so you don't have to</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</pre></div>
+
+<p>In this example, we've basically done 3 things:</p>
+
+<ol>
+<li>define the Command class, with <a href="https://github.com/Command" class="user-mention">@Command</a>, and <a href="https://github.com/Option" class="user-mention">@Option</a> annotations</li>
+<li>instantiate the OptionParser class along with the Command class</li>
+<li>parse the command line args with OptionParser.parse()</li>
+</ol><p>This is common to all comand line applications built using Rop, regardless how complex the application is.</p>
+
+<p>For API details, please refer to the javadoc.</p>
+
+<h2>
+<a name="understanding-rop" class="anchor" href="#understanding-rop"><span class="octicon octicon-link"></span></a>Understanding Rop</h2>
+
+<p>The most significant thing in Rop is the <code>OptionParser</code> class, with which Commands are registered, then you call its <code>parse()</code> method to parse the command line arguments.</p>
+
+<h3>
+<a name="the-command-annotation" class="anchor" href="#the-command-annotation"><span class="octicon octicon-link"></span></a>The <code>@Command</code> Annotation</h3>
+
+<p>Any vanilla class can be turned to a valid Command with the <code>@Command</code> annotation, regardless it has Options or not.</p>
+
+<p>Hence we call it a <em>Command class</em> here.</p>
+
+<h3>
+<a name="the-option-annotation" class="anchor" href="#the-option-annotation"><span class="octicon octicon-link"></span></a>The <code>@Option</code> Annotation</h3>
+
+<p>In a Command class, those fields having the <code>@Option</code> annotation, are viable to be set from command line argments during parsing. The above example should make this pretty clear.</p>
+
+<h3>
+<a name="command-registration" class="anchor" href="#command-registration"><span class="octicon octicon-link"></span></a>Command Registration</h3>
+
+<p>The <code>OptionParser</code> class provides a <code>register()</code> method to allow a Command, i.e. a class annotated with <code>@Command</code>, or its instance, to be registered with the parser. The <code>register()</code> method is chainable, as it always returns the parser object.</p>
+
+<p>A Command can also be registered by passing it directly to the constructor <code>OptionParser()</code>, so you don't have to explicitly call the <code>register()</code> method. Also, the constructor can be called with any number of Commands.</p>
+
+<h3>
+<a name="post-parsing-hook---method-commandrun" class="anchor" href="#post-parsing-hook---method-commandrun"><span class="octicon octicon-link"></span></a>Post Parsing Hook - Method <code>Command.run()</code>
+</h3>
+
+<p>A Command can have a little magic. If it has a <code>run()</code> method, the parser would call this method at the end of parsing if the Command appeared in the command line.</p>
+
+<p>In the above example, <code>FooCommand.run()</code> would be called automatically, it would receive a reference to the parser itself, and an array which consists of all the remaining arguments.</p>
+
+<p>If you're not interested in getting either the parser or the parameters, just omit any of them, or both.</p>
+
+<p>Note that if there're more than one <code>run()</code> methods in a Command class, only the first would be called.</p>
+
+<h3>
+<a name="using-sub-commands" class="anchor" href="#using-sub-commands"><span class="octicon octicon-link"></span></a>Using Sub-commands</h3>
+
+<p>Typical commands, such as <a href="http://en.wikipedia.org/wiki/Mv"><code>mv</code></a> and <a href="http://en.wikipedia.org/wiki/Ls"><code>ls</code></a> in Unix, are quite simple, they're designed to <a href="http://en.wikipedia.org/wiki/Unix_philosophy">do one thing and do it well</a>. It needs just one Command class to build such a simple command line application. However, not everything is simple like this.</p>
+
+<p>Often, your command line application needs to do more than one thing, naturally you'll need more than one Command classes.</p>
+
+<h4>
+<a name="the-parent-command" class="anchor" href="#the-parent-command"><span class="octicon octicon-link"></span></a>The Parent Command</h4>
+
+<p>Please note that besides all the sub-commands, as with <code>git add</code>, and <code>git commit</code>, you need a <em>main</em> Command class as the parent.</p>
+
+<p>The parent Command usually becomes a no-action Command, it's often used to handle global options, especially <code>--version</code>, and <code>--help</code>.</p>
+
+<h4>
+<a name="allowing-only-one-sub-command-being-called" class="anchor" href="#allowing-only-one-sub-command-being-called"><span class="octicon octicon-link"></span></a>Allowing only One Sub-command Being Called</h4>
+
+<p>Certain command line applications, for example, <a href="http://git-scm.com/">Git</a> provides a bunch of sub-commands to do many different things, such as <code>git add</code>, <code>git commit</code> and <code>git log</code>.</p>
+
+<p>By default, Rop only allows one sub-command to be called on the command line, which is the case with Git.</p>
+
+<p>This is done by calling the 1-arg version of <code>OptionParser#parse()</code>, i.e.:</p>
+
+<div class="highlight"><pre><span class="n">parser</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">args</span><span class="o">);</span>
+</pre></div>
+
+<p>Though Git provides many sub-commands, as with the default parsing behavior, you can only use one sub-command at a time, for example, in <code>git add ... commit ...</code>, the argument 'commit' loses its magic and would be treated as something to be added with <code>git add</code>, not the sub-command <code>git commit</code>.</p>
+
+<h4>
+<a name="allowing-multiple-sub-commands-to-be-called-together" class="anchor" href="#allowing-multiple-sub-commands-to-be-called-together"><span class="octicon octicon-link"></span></a>Allowing Multiple Sub-commands to Be Called Together</h4>
+
+<p>But for <a href="http://ant.apache.org/">Ant</a> and <a href="http://maven.apache.org/">Maven</a>, it's a different story. As in <code>mvn clean test</code>, you can run multiple sub-commands together. Can we do that as well? Sure, it's actually very simple:</p>
+
+<p>Rather than calling</p>
+
+<div class="highlight"><pre><span class="n">parser</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">args</span><span class="o">);</span>
+</pre></div>
+
+<p>instead, call</p>
+
+<div class="highlight"><pre><span class="n">parser</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">args</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+</pre></div>
+
+<p>The extra boolean argument, when set to 'true', tells the parser to recognize all the sub-commands it detected. For each properly recognized sub-command, its <code>run()</code> method, if exists, would be called, in the order they appeared on the command line.</p>
+
+<h3>
+<a name="managed-instance-objects-of-command-classes" class="anchor" href="#managed-instance-objects-of-command-classes"><span class="octicon octicon-link"></span></a>Managed Instance Objects of Command Classes</h3>
+
+<p>Internally Rop helps manage all the instance objects of registered Command classes, which makes it possible to get the instance object of any registered Command class, e.g.:</p>
+
+<div class="highlight"><pre><span class="n">parser</span> <span class="o">=</span> <span class="k">new</span> <span class="n">OptionParser</span><span class="o">(</span><span class="n">FooCommand</span><span class="o">.</span><span class="na">class</span><span class="o">);</span> <span class="c1">// register with class FooCommand</span>
+
+<span class="n">parser</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">FooCommand</span><span class="o">.</span><span class="na">class</span><span class="o">);</span> <span class="c1">// this is how to get the instance object for FooCommand class</span>
+</pre></div>
+
+<p>A typical usage of this is in your <code>Command#run()</code> method:</p>
+
+<div class="highlight"><pre><span class="n">run</span><span class="o">(</span><span class="n">OptionParser</span> <span class="n">parser</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">params</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">FooCommand</span> <span class="n">foo</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">FooCommand</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">foo</span><span class="o">.</span><span class="na">bar</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>This allows your Commands to be loosely decoupled and flexibly reused.</p>
+
+<h3>
+<a name="supported-field-types-and-default-values" class="anchor" href="#supported-field-types-and-default-values"><span class="octicon octicon-link"></span></a>Supported Field Types and Default Values</h3>
+
+<ul>
+<li>String, and all primitive type and their wrapper types are directly supported.</li>
+<li>File, Path are supported as well, but not Date/Time yet.</li>
+<li>There might be a customizable type binder available in the future.</li>
+</ul><p>As in the above example, a default option value can be directly set to its associated field. If not set, the option values default to their type default, as list above, according to Java Tutorial - <a href="http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html">Primitive Data Types</a>.</p>
+
+<pre>
+Types                   Default Values
+boolean                 false
+byte                    0
+short                   0
+int                     0
+long                    0L
+float                   0.0f
+double                  0.0d
+char                    '\u0000'
+String/Wrapper/Object   null
+</pre>
+
+<h3>
+<a name="built-in-help" class="anchor" href="#built-in-help"><span class="octicon octicon-link"></span></a>Built-in Help</h3>
+
+<p>If option '--help' is present, the parser will:</p>
+
+<ol>
+<li>display help information constructed from the Commands/Options annotations</li>
+<li>call System.exit(0)</li>
+</ol><h3>
+<a name="error-handling" class="anchor" href="#error-handling"><span class="octicon octicon-link"></span></a>Error Handling</h3>
+
+<p>Any possible error would be thrown as a RuntimeException, or its subclass, provided with proper error massege. You might want to catch the exception, print the error message and/or the help information before exiting the program. This task is intentionally left to you so that you can control how your program behaves upon parsing errors before terminating.</p>
+
+<h2>
+<a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
+
+<p>If you'd like to help improve Rop, clone the project with Git by running:</p>
+
+<pre><code>$ git clone https://github.com/ryenus/rop
+</code></pre>
+
+<p>Work your magic and then submit a pull request. We love pull requests!</p>
+
+<p>If you don't have the time to work on Rop, but found something we should know about, please submit an issue.</p>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>Rop is released under the <a href="http://www.opensource.org/licenses/MIT">MIT License</a>.</p>
+
+<h2>
+<a name="related-projects" class="anchor" href="#related-projects"><span class="octicon octicon-link"></span></a>Related projects</h2>
+
+<ul>
+<li><a href="https://github.com/arenn/java-getopt">java-getopt</a></li>
+<li><a href="http://pholser.github.com/jopt-simple">JOpt Simple</a></li>
+<li><a href="https://github.com/cbeust/jcommander">JCommander</a></li>
+<li><a href="http://commons.apache.org/proper/commons-cli/">Commons CLI</a></li>
+<li><a href="https://code.google.com/p/joptparse">joptparse</a></li>
+</ul>
+      </section>
+      <footer>
+        <p>Project maintained by <a href="https://github.com/ryenus">ryenus</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-39711562-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>

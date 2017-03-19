@@ -42,6 +42,8 @@ public class OptionParser {
 	 * Construct an OptionParse instance. It also accepts one or a group of,
 	 * command classes or the corresponding instances to be registered with.
 	 *
+	 * @param commands one or more Command classes
+	 *
 	 * @see #register(Object)
 	 */
 	public OptionParser(Object... commands) {
@@ -63,11 +65,9 @@ public class OptionParser {
 	 * Register a command class or its instance. For a class, an instance will
 	 * be created internally and available via {@link #get(Class)}.
 	 *
-	 *<p>
-	 * The command registered first is treated as the top command, subsequently
+	 *<p>The command registered first is treated as the top command, subsequently
 	 * registered commands are all taken as level-two sub-commands, however,
 	 * level-three sub-commands are not supported by design.
-	 *</p>
 	 *
 	 * @param command
 	 *            a command class (or its instance) to be registered, the class
@@ -363,6 +363,8 @@ public class OptionParser {
 	 * Get the instance of the provided Command class if it's registered.
 	 *
 	 * @param klass a registered Command class
+	 * @param <T> the type of the Command class
+	 *
 	 * @return the instance of the given Command class, null if Command not
 	 * registered
 	 */
@@ -374,12 +376,10 @@ public class OptionParser {
 	/**
 	 * Annotate a class as Command to use it with {@link OptionParser}.
 	 *
-	 * <p>
-	 * The descriptions and notes will be used to make up the help information.
+	 * <p>The descriptions and notes will be used to make up the help information.
 	 * When crafted well, the descriptions and/or notes could span multiple
 	 * paragraphs, as well as indented list items, thus to provide a well
 	 * explained help.
-	 * </p
 	 *
 	 * @see Command#descriptions()
 	 */
@@ -406,14 +406,16 @@ public class OptionParser {
 		 *                                      statement 2
 		 * -------------------------------------------------------------------
 		 * {"statement 1",                      statement 1
-		 *  " space indented item A"             space indented item A
-		 *  "\ttab indented item B"                     tab indented item B
-		 *  "\n separated & indented item C"}
-		 *                                       separated & indented item C
+		 *  " space indented item A",            space indented item A
+		 *  "\ttab indented item B",                    tab indented item B
+		 *  "\n separated &amp; indented item C"}
+		 *                                       separated &amp; indented item C
 		 * </pre>
 		 *
 		 * If a line contains than 80 characters, the line would be
 		 * automatically wrapped near the 80th column.
+		 *
+		 * @return Command descriptions
 		 */
 		String[] descriptions() default {};
 
@@ -424,6 +426,7 @@ public class OptionParser {
 		 * <p>
 		 * As with {@link #descriptions()}, the same trick can be used to
 		 * separate paragraphs
+		 * @return Command usage notes
 		 */
 		String[] notes() default {};
 	}
@@ -441,12 +444,14 @@ public class OptionParser {
 		 * Multiple option keys are supported, but the built-in help information
 		 * would only display the first short option and the first long option
 		 * if there're many.
+		 * @return option keys
 		 */
 		String[] opt();
 		
 		/**
 		 * The description of the option, if too long, it would be wrapped
 		 * correctly with a 2-space indent starting from the second line.
+		 * @return option description
 		 */
 		String description();
 
@@ -454,16 +459,19 @@ public class OptionParser {
 
 		/**
 		 * Hide the option in the help information
+		 * @return whether to hide the option in help information
 		 */
 		boolean hidden() default false;
 
 		/**
 		 * Must read the option from terminal, and do not echo input
+		 * @return whether to treat the option as secret data like password
 		 */
 		boolean secret() default false;
 
 		/**
 		 * The prompt to display when reading secret from terminal
+		 * @return the prompt for reading input
 		 */
 		String prompt() default "password: ";
 	}

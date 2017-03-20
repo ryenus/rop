@@ -2,8 +2,8 @@ package thirdpty.test.negative;
 
 import org.junit.Test;
 
-import com.github.ryenus.rop.OptionParser;
-import com.github.ryenus.rop.OptionParser.Command;
+import com.github.ryenus.optj.OptionParser;
+import com.github.ryenus.optj.Command;
 
 public class NonStaticInnerClass {
 

@@ -1,8 +1,8 @@
 package thirdpty.test;
 
-import com.github.ryenus.rop.OptionParser;
-import com.github.ryenus.rop.OptionParser.Command;
-import com.github.ryenus.rop.OptionParser.Option;
+import com.github.ryenus.optj.OptionParser;
+import com.github.ryenus.optj.Command;
+import com.github.ryenus.optj.Option;
 
 @Command(name = "run1", descriptions = "")
 public class RunnableCommand {

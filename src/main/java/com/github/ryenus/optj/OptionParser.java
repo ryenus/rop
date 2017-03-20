@@ -1,14 +1,10 @@
-package com.github.ryenus.rop;
+package com.github.ryenus.optj;
 
-import static com.github.ryenus.rop.OptionType.LONG;
-import static com.github.ryenus.rop.OptionType.REVERSE;
-import static com.github.ryenus.rop.OptionType.SHORT;
+import static com.github.ryenus.optj.OptionType.LONG;
+import static com.github.ryenus.optj.OptionType.REVERSE;
+import static com.github.ryenus.optj.OptionType.SHORT;
 
 import java.io.File;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -27,16 +23,16 @@ import java.util.ListIterator;
 import java.util.Map;
 
 /**
- * Rop - A lightweight command line option parser. It also supports level-two
+ * optj - a lightweight command line option parser. It also supports level-two
  * sub-commands, as with {@code git add}.
  *
  * @author ryenus
  */
 public class OptionParser {
 	private final Map<Class<?>, Object> byType;
-	private final Map<String, CommandInfo> byName;
-	private CommandInfo top;
-	private CommandInfo cci;
+	private final Map<String, CommandUsage> byName;
+	private CommandUsage top;
+	private CommandUsage cci;
 
 	/**
 	 * Construct an OptionParse instance. It also accepts one or a group of,
@@ -97,14 +93,14 @@ public class OptionParser {
 		}
 
 		String cmdName = cmdAnno.name();
-		CommandInfo existingCmd = byName.get(cmdName);
+		CommandUsage existingCmd = byName.get(cmdName);
 		if (existingCmd != null) {
 			throw new RuntimeException(String.format("Unable to register '%s' command with %s, it's already registered by %s",
 					cmdName, klass, existingCmd.command.getClass()));
 		}
 
 		byType.put(klass, instance);
-		CommandInfo ci = new CommandInfo(instance, cmdAnno);
+		CommandUsage ci = new CommandUsage(instance, cmdAnno);
 		if (top == null) {
 			top = ci;
 		}
@@ -129,7 +125,7 @@ public class OptionParser {
 	 *
 	 * @param args
 	 *            this should be the command line args passed to {@code main}
-	 * @return a map consists of the recognized command and their params
+	 * @return a optsMap consists of the recognized command and their params
 	 *
 	 * @see #parse(String[], boolean)
 	 */
@@ -164,7 +160,7 @@ public class OptionParser {
 	 * @param multi
 	 *            whether to support multiple sub-commands, like with
 	 *            {@literal `mvn clean test`}
-	 * @return a map consists of the recognized command and their params
+	 * @return a optsMap consists of the recognized command and their params
 	 */
 	public Map<Object, String[]> parse(String[] args, boolean multi) {
 		if (top == null) { // no command registered. nothing to do
@@ -184,7 +180,7 @@ public class OptionParser {
 				System.exit(0);
 			}
 
-			CommandInfo ci = byName.get(arg);
+			CommandUsage ci = byName.get(arg);
 			if (ci != null) {
 				if (ci == cci || cpm.containsKey(ci.command) || (!multi && cpm.size() > 0)) {
 					params.add(arg);
@@ -207,7 +203,7 @@ public class OptionParser {
 			} else if (arg.startsWith(SHORT.prefix) || arg.startsWith(REVERSE.prefix)) {
 				OptionType type = OptionType.get(arg.substring(0, 1));
 				String opt = arg.substring(1);
-				if (cci.map.containsKey(opt)) {
+				if (cci.optsMap.containsKey(opt)) {
 					parseOpt(opt, lit, type);
 				} else {
 					String[] opts = Utils.csplit(opt);
@@ -224,9 +220,9 @@ public class OptionParser {
 		return cpm;
 	}
 
-	private static void stage(Map<Object, String[]> cpm, CommandInfo ci, List<String> params) {
+	private static void stage(Map<Object, String[]> cpm, CommandUsage ci, List<String> params) {
 		cpm.put(ci.command, params.toArray(new String[params.size()]));
-		for (OptionInfo oi : new HashSet<>(ci.map.values())) {
+		for (OptionUsage oi : new HashSet<>(ci.optsMap.values())) {
 			if (oi.anno.required() && !oi.set) {
 				throw new RuntimeException(String.format("Required option not found for field %s", oi.field));
 			}
@@ -240,18 +236,18 @@ public class OptionParser {
 	}
 
 	private void parseOpt(String option, ListIterator<String> liter, OptionType optionType) {
-		OptionInfo optionInfo = cci.map.get(option);
-		if (optionInfo == null) {
+		OptionUsage optionUsage = cci.optsMap.get(option);
+		if (optionUsage == null) {
 			throw new IllegalArgumentException(String.format("Unknown option '%s'", option));
 		}
 
-		Field field = optionInfo.field;
+		Field field = optionUsage.field;
 		field.setAccessible(true);
 		Class<?> fieldType = field.getType();
 
 		Object value = null;
-		if (optionInfo.anno.secret()) {
-			value = Utils.readSecret(optionInfo.anno.prompt());
+		if (optionUsage.anno.secret()) {
+			value = Utils.readSecret(optionUsage.anno.prompt());
 		} else if (fieldType == boolean.class || fieldType == Boolean.class) {
 			value = (optionType != REVERSE);
 		} else { // TODO: support arity
@@ -263,7 +259,7 @@ public class OptionParser {
 
 		try {
 			field.set(cci.command, value);
-			optionInfo.set = true;
+			optionUsage.set = true;
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
@@ -347,10 +343,10 @@ public class OptionParser {
 		sb.append(top.help(false));
 		sb.append(String.format("\n      --help %20s display this help and exit", ""));
 
-		List<CommandInfo> cmds = new ArrayList<>(byName.values());
+		List<CommandUsage> cmds = new ArrayList<>(byName.values());
 		cmds.remove(top);
 		Collections.sort(cmds, Utils.CMD_COMPARATOR);
-		for (CommandInfo ci : cmds) {
+		for (CommandUsage ci : cmds) {
 			sb.append(String.format("\n\n[Command '%s']\n\n", ci.anno.name()));
 			sb.append(ci.help(true));
 		}
@@ -373,106 +369,4 @@ public class OptionParser {
 		return (T) byType.get(klass);
 	}
 
-	/**
-	 * Annotate a class as Command to use it with {@link OptionParser}.
-	 *
-	 * <p>The descriptions and notes will be used to make up the help information.
-	 * When crafted well, the descriptions and/or notes could span multiple
-	 * paragraphs, as well as indented list items, thus to provide a well
-	 * explained help.
-	 *
-	 * @see Command#descriptions()
-	 */
-	@Target(ElementType.TYPE)
-	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface Command {
-		String name();
-
-		/**
-		 * Command descriptions are automatically included in the help
-		 * information before options list.
-		 *
-		 * <p>
-		 * With an array of sentences, by prefixing an item with a {@code '\n'}
-		 * character, a new line would be inserted above it to separated from
-		 * the previous one hence make it a new paragraph.
-		 * </p>
-		 *
-		 * <pre>
-		 * descriptions                         result
-		 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		 * {"statement 1",                      statement 1
-		 *  "\nstatement 2"}
-		 *                                      statement 2
-		 * -------------------------------------------------------------------
-		 * {"statement 1",                      statement 1
-		 *  " space indented item A",            space indented item A
-		 *  "\ttab indented item B",                    tab indented item B
-		 *  "\n separated &amp; indented item C"}
-		 *                                       separated &amp; indented item C
-		 * </pre>
-		 *
-		 * If a line contains than 80 characters, the line would be
-		 * automatically wrapped near the 80th column.
-		 *
-		 * @return Command descriptions
-		 */
-		String[] descriptions() default {};
-
-		/**
-		 * Command notes are automatically included in the help information
-		 * after options list.
-		 *
-		 * <p>
-		 * As with {@link #descriptions()}, the same trick can be used to
-		 * separate paragraphs
-		 * @return Command usage notes
-		 */
-		String[] notes() default {};
-	}
-
-	/**
-	 * Annotate the {@link Command} fields with Option. A default option value
-	 * can be directly set on the annotated field.
-	 */
-	@Target(ElementType.FIELD)
-	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface Option {
-		/**
-		 * The option keys, like {@literal '-f'}, {@literal '--file'}.
-		 *
-		 * Multiple option keys are supported, but the built-in help information
-		 * would only display the first short option and the first long option
-		 * if there're many.
-		 * @return option keys
-		 */
-		String[] opt();
-		
-		/**
-		 * The description of the option, if too long, it would be wrapped
-		 * correctly with a 2-space indent starting from the second line.
-		 * @return option description
-		 */
-		String description();
-
-		boolean required() default false;
-
-		/**
-		 * Hide the option in the help information
-		 * @return whether to hide the option in help information
-		 */
-		boolean hidden() default false;
-
-		/**
-		 * Must read the option from terminal, and do not echo input
-		 * @return whether to treat the option as secret data like password
-		 */
-		boolean secret() default false;
-
-		/**
-		 * The prompt to display when reading secret from terminal
-		 * @return the prompt for reading input
-		 */
-		String prompt() default "password: ";
-	}
 }

@@ -7,7 +7,7 @@ import org.junit.Test;
 import thirdpty.test.PrivateConstructor;
 import thirdpty.test.RunnableCommand;
 
-import com.github.ryenus.rop.OptionParser;
+import com.github.ryenus.optj.OptionParser;
 
 public class NegativeCasesTest {
 	private OptionParser parser;

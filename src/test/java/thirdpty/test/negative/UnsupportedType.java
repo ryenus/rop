@@ -2,8 +2,8 @@ package thirdpty.test.negative;
 
 import java.util.Calendar;
 
-import com.github.ryenus.rop.OptionParser.Command;
-import com.github.ryenus.rop.OptionParser.Option;
+import com.github.ryenus.optj.Command;
+import com.github.ryenus.optj.Option;
 
 @Command(name = "con", descriptions = "")
 public class UnsupportedType {

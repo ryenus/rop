@@ -1,4 +1,4 @@
-package com.github.ryenus.rop;
+package com.github.ryenus.optj;
 
 enum OptionType {
 	LONG("--"), SHORT("-"), REVERSE("+");

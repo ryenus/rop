@@ -1,7 +1,7 @@
 package thirdpty.test.negative;
 
-import com.github.ryenus.rop.OptionParser.Command;
-import com.github.ryenus.rop.OptionParser.Option;
+import com.github.ryenus.optj.Command;
+import com.github.ryenus.optj.Option;
 
 @Command(descriptions = "A bad command with duplicated opt keys", name = "")
 public class DuplicateOptionKeys {

@@ -1,7 +1,7 @@
 package thirdpty.test;
 
-import com.github.ryenus.rop.OptionParser.Command;
-import com.github.ryenus.rop.OptionParser.Option;
+import com.github.ryenus.optj.Command;
+import com.github.ryenus.optj.Option;
 
 @Command(name = "passwd", descriptions = "test password input")
 class PasswordInput {

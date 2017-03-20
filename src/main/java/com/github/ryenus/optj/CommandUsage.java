@@ -1,26 +1,21 @@
-package com.github.ryenus.rop;
+package com.github.ryenus.optj;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import com.github.ryenus.rop.OptionParser.Command;
-import com.github.ryenus.rop.OptionParser.Option;
-
-class CommandInfo {
+class CommandUsage {
 	Object command;
 	Command anno;
-	Map<String, OptionInfo> map;
+	Map<String, OptionUsage> optsMap = new HashMap<>();
 
-	CommandInfo(Object command, Command anno) {
+	CommandUsage(Object command, Command anno) {
 		this.command = command;
 		this.anno = anno;
 
-		map = new HashMap<>();
 		Class<?> klass = command.getClass();
 		for (Field field : klass.getDeclaredFields()) {
 			if (!field.isSynthetic()) {
@@ -35,13 +30,13 @@ class CommandInfo {
 						throw new RuntimeException(String.format("Required option '%s' cannot be hidden for '%s'", opts[0], field));
 					}
 
-					OptionInfo optionInfo = new OptionInfo(field, optAnno);
+					OptionUsage optUsage = new OptionUsage(field, optAnno);
 					for (String opt : opts) {
 						String key = opt.replaceFirst("^(-)+", "");
-						if (map.containsKey(key)) {
-							throw new RuntimeException(String.format("Conflict option '%s' found in '%s' and '%s'", opt, map.get(key).field, field));
+						if (optsMap.containsKey(key)) {
+							throw new RuntimeException(String.format("Conflict option '%s' found in '%s' and '%s'", opt, optsMap.get(key).field, field));
 						}
-						map.put(key, optionInfo);
+						optsMap.put(key, optUsage);
 					}
 				}
 			}
@@ -53,14 +48,14 @@ class CommandInfo {
 		String cmdDesc = Utils.format(anno.descriptions(), false);
 		sb.append(cmdDesc);
 
-		List<String> list = new ArrayList<>(map.size());
-		for (OptionInfo oi : new HashSet<>(map.values())) {
+		List<String> list = new ArrayList<>(optsMap.size());
+		for (OptionUsage oi : new HashSet<>(optsMap.values())) {
 			if (!oi.anno.hidden()) {
 				list.add(oi.help());
 			}
 		}
 
-		Collections.sort(list, Utils.OPT_COMPARATOR);
+		list.sort(Utils.OPT_COMPARATOR);
 		for (String string : list) {
 			sb.append("\n").append(string);
 		}

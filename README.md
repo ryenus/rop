@@ -1,13 +1,13 @@
-# Rop
+# About optj
 
-[![Build Status](https://travis-ci.org/ryenus/rop.png?branch=master)](https://travis-ci.org/ryenus/rop)
+[![Build Status](https://travis-ci.org/ryenus/optj.png?branch=master)](https://travis-ci.org/ryenus/optj)
 
 A lightweight command line option parser written in Java.
 
 
 ## Introduction
 
-Rop is designed to be minimal meanwhile convenient, and to cover most usual command line parsing use cases listed below:
+optj is designed to be minimal meanwhile convenient, and to cover most usual command line parsing use cases listed below:
 
 | Command Line App Examples | Classification / Description
 |---------------------------|---------------------------------------------
@@ -15,9 +15,9 @@ Rop is designed to be minimal meanwhile convenient, and to cover most usual comm
 | `git add`, `git commit`   | sub-commands, but single invocation
 | `mvn clean test`          | sub-commands supporting multiple invocations
 
-All these types of command line applications can be built using Rop.
+All these types of command line applications can be built using optj.
 
-More than that, Rop endorses building command line option parsers the Java way. Instead of following the traditional [GetOpt](http://en.wikipedia.org/wiki/Getopt) way of building an option parser, Rop follows an approache that is:
+More than that, optj endorses building command line option parsers the Java way. Instead of following the traditional [GetOpt](http://en.wikipedia.org/wiki/Getopt) way of building an option parser, optj follows an approache that is:
 
 * Annotation based, and
 * Object oriented
@@ -29,27 +29,27 @@ Also, each Command can optionally have a `run()` method to define its behavior, 
 
 ## Getting Started
 
-Rop is available as a Maven artifact `com.github.ryenus:rop`. Simply add this to the dependencies section in your pom.xml:
+optj is available as a Maven artifact `com.github.ryenus:optj`. Simply add this to the dependencies section in your pom.xml:
 
 ```xml
 <dependency>
   <groupId>com.github.ryenus</groupId>
-  <artifactId>rop</artifactId>
-  <version>${rop.version}</version>
+  <artifactId>optj</artifactId>
+  <version>${optj.version}</version>
 </dependency>
 ```
 
-You can always get the latest source code from https://github.com/ryenus/rop.
+You can always get the latest source code from https://github.com/ryenus/optj.
 
 
 ### Usage Example
 
-Here's a quick example to demonstrate how to use Rop:
+Here's a quick example to demonstrate how to use optj:
 
 ```java
-import com.github.ryenus.rop.OptionParser;
-import com.github.ryenus.rop.OptionParser.Command;
-import com.github.ryenus.rop.OptionParser.Option;
+import com.github.ryenus.optj.OptionParser;
+import com.github.ryenus.optj.OptionParser.Command;
+import com.github.ryenus.optj.OptionParser.Option;
 
 
 // 1. Here we define the Command class
@@ -90,14 +90,14 @@ In this example, we've basically done 3 things:
 2. instantiate the `OptionParser` class with the Command class as the arguement to have it registered
 3. parse the command line args with OptionParser.parse()
 
-This is common to all comand line applications built using Rop, regardless how complex the application is.
+This is common to all comand line applications built using optj, regardless how complex the application is.
 
 For API details, please refer to the javadoc.
 
 
-## Understanding Rop
+## Understanding optj
 
-The most significant thing in Rop is the `OptionParser` class, with which Commands are registered, then you call its `parse()` method to parse the command line arguments.
+The most significant thing in optj is the `OptionParser` class, with which Commands are registered, then you call its `parse()` method to parse the command line arguments.
 
 
 ### The `@Command` Annotation
@@ -148,7 +148,7 @@ The parent Command usually becomes a no-action Command, it's often used to handl
 
 Certain command line applications, for example, [Git](http://git-scm.com/) provides a bunch of sub-commands to do many different things, such as `git add`, `git commit` and `git log`.
 
-By default, Rop only allows one sub-command to be called on the command line, which is the case with Git.
+By default, optj only allows one sub-command to be called on the command line, which is the case with Git.
 
 This is done by calling the 1-arg version of `OptionParser#parse()`, i.e.:
 
@@ -178,7 +178,7 @@ The extra boolean argument, when set to 'true', tells the parser to recognize al
 
 ### Managed Instance Objects of Command Classes
 
-Internally Rop helps manage all the instance objects of registered Command classes, which makes it possible to get the instance object of any registered Command class, e.g.:
+Internally optj helps manage all the instance objects of registered Command classes, which makes it possible to get the instance object of any registered Command class, e.g.:
 
 ```java
 parser = new OptionParser(FooCommand.class); // register with class FooCommand
@@ -232,17 +232,17 @@ Any possible error would be thrown as a RuntimeException, or its subclass, provi
 
 ## Contributing
 
-If you'd like to help improve Rop, clone the project with Git by running:
+If you'd like to help improve optj, clone the project with Git by running:
 
-    $ git clone https://github.com/ryenus/rop
+    $ git clone https://github.com/ryenus/optj
 
 Work your magic and then submit a pull request. We love pull requests!
 
-If you don't have the time to work on Rop, but found something we should know about, please submit an issue.
+If you don't have the time to work on optj, but found something we should know about, please submit an issue.
 
 ## License
 
-Rop is released under the [MIT License](http://www.opensource.org/licenses/MIT).
+optj is released under the [MIT License](http://www.opensource.org/licenses/MIT).
 
 ## Related projects
 

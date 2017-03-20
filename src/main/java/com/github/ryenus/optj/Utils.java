@@ -1,4 +1,4 @@
-package com.github.ryenus.rop;
+package com.github.ryenus.optj;
 
 import java.io.Console;
 import java.util.Comparator;
@@ -11,9 +11,9 @@ class Utils {
 	private static final Pattern CHAR_SPLITTER = Pattern.compile("(?!^)"); // look-ahead, do not split at '^'
 	private static final Pattern WORD_SPLITTER = Pattern.compile("(?<!^)\\s+"); // look-behind
 
-	static final Comparator<CommandInfo> CMD_COMPARATOR = new Comparator<CommandInfo>() {
+	static final Comparator<CommandUsage> CMD_COMPARATOR = new Comparator<CommandUsage>() {
 		@Override
-		public int compare(CommandInfo o1, CommandInfo o2) {
+		public int compare(CommandUsage o1, CommandUsage o2) {
 			return o1.anno.name().compareTo(o2.anno.name());
 		}
 	};

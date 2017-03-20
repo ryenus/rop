@@ -18,7 +18,7 @@ import java.security.Permission;
 
 import org.junit.Test;
 
-import com.github.ryenus.rop.OptionParser;
+import com.github.ryenus.optj.OptionParser;
 
 public class OptionParserTest {
 	private OptionParser parser;

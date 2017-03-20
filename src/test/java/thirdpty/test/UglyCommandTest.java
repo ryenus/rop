@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.github.ryenus.rop.OptionParser;
-import com.github.ryenus.rop.OptionParser.Command;
-import com.github.ryenus.rop.OptionParser.Option;
+import com.github.ryenus.optj.OptionParser;
+import com.github.ryenus.optj.Command;
+import com.github.ryenus.optj.Option;
 
 public class UglyCommandTest {
 

@@ -1,15 +1,14 @@
-package com.github.ryenus.rop;
+package com.github.ryenus.optj;
 
 import java.lang.reflect.Field;
 
-import com.github.ryenus.rop.OptionParser.Option;
-
-class OptionInfo {
+class OptionUsage
+{
 	Field field;
 	Option anno;
 	boolean set;
 
-	OptionInfo(Field field, Option optAnno) {
+	OptionUsage(Field field, Option optAnno) {
 		this.field = field;
 		this.anno = optAnno;
 		this.set = false;

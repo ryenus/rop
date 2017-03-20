@@ -8,13 +8,13 @@
 	</parent>
 
 	<groupId>com.github.ryenus</groupId>
-	<artifactId>rop</artifactId>
+	<artifactId>optj</artifactId>
 	<version>1.2</version>
 	<packaging>jar</packaging>
 
-	<name>Rop</name>
+	<name>optj</name>
 	<description>A lightweight command line option parser written in Java</description>
-	<url>http://ryenus.github.com/rop</url>
+	<url>http://ryenus.github.com/optj</url>
 	<licenses>
 		<license>
 			<name>MIT License</name>
@@ -23,9 +23,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<url>https://github.com/ryenus/rop</url>
-		<connection>scm:git:https://github.com/ryenus/rop</connection>
-		<developerConnection>scm:git:https://github.com/ryenus/rop</developerConnection>
+		<url>https://github.com/ryenus/optj</url>
+		<connection>scm:git:https://github.com/ryenus/optj</connection>
+		<developerConnection>scm:git:https://github.com/ryenus/optj</developerConnection>
 	</scm>
 	<developers>
 		<developer>

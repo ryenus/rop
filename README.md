@@ -1,6 +1,6 @@
 # Rop
 
-[![Build Status](https://travis-ci.org/ryenus/rop.png?branch=master)](https://travis-ci.org/ryenus/rop)
+[![Build Status](https://api.travis-ci.org/ryenus/rop.svg?branch=master)](https://travis-ci.org/ryenus/rop)
 
 A lightweight command line option parser written in Java.
 

@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/ryenus/rop.png?label=ready&title=Ready)](https://waffle.io/ryenus/rop)
 # Rop
 
 [![Build Status](https://api.travis-ci.org/ryenus/rop.svg?branch=master)](https://travis-ci.org/ryenus/rop)

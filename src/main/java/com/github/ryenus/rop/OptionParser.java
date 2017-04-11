@@ -168,7 +168,7 @@ public class OptionParser {
 		while (lit.hasNext()) {
 			String arg = lit.next();
 
-			if (arg.equals("--help")) {
+			if ("--help".equals(arg)) {
 				showHelp();
 				System.exit(0);
 			}
@@ -186,7 +186,7 @@ public class OptionParser {
 				continue;
 			}
 
-			if (arg.equals("--")) { // treat everything else as parameters
+			if ("--".equals(arg)) { // treat everything else as parameters
 				while (lit.hasNext()) {
 					params.add(lit.next());
 				}

@@ -14,7 +14,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static com.github.ryenus.rop.OptionType.*;
-import static com.github.ryenus.rop.Utils.NEWLINE;
+import static com.github.ryenus.rop.OptUtils.NEWLINE;
 
 /**
  * Rop - A lightweight command line option parser. It also supports level-two
@@ -200,7 +200,7 @@ public class OptionParser {
 				if (cci.map.containsKey(opt)) {
 					parseOpt(opt, lit, type);
 				} else {
-					String[] opts = Utils.csplit(opt);
+					String[] opts = OptUtils.csplit(opt);
 					parseOpts(opts, lit, type);
 				}
 			} else { // TODO: need 'real' unescaping logic
@@ -241,7 +241,7 @@ public class OptionParser {
 
 		Object value;
 		if (optionInfo.anno.secret()) {
-			value = Utils.readSecret(optionInfo.anno.prompt());
+			value = OptUtils.readSecret(optionInfo.anno.prompt());
 		} else if (fieldType == boolean.class || fieldType == Boolean.class) {
 			value = (optionType != REVERSE);
 		} else { // TODO: support arity
@@ -346,7 +346,7 @@ public class OptionParser {
 
 		List<CommandInfo> cmds = new ArrayList<>(byName.values());
 		cmds.remove(top);
-		cmds.sort(Utils.CMD_COMPARATOR);
+		cmds.sort(OptUtils.CMD_COMPARATOR);
 		for (CommandInfo ci : cmds) {
 			sb.append(NEWLINE).append(NEWLINE);
 			sb.append(String.format("[Command '%s']", ci.anno.name()));
@@ -354,7 +354,7 @@ public class OptionParser {
 			sb.append(ci.help(true));
 		}
 
-		sb.append(Utils.format(top.anno.notes(), true)).append(NEWLINE);
+		sb.append(OptUtils.format(top.anno.notes(), true)).append(NEWLINE);
 		System.out.print(sb.toString());
 	}
 

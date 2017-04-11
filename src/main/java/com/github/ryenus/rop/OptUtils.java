@@ -5,26 +5,19 @@ import java.util.Comparator;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-class Utils {
+class OptUtils {
+
+	private OptUtils() {} // only utility methods here
+
 	private static final String PADDING = String.format("%36s", "");
 	private static final Pattern OPT_PREFIX = Pattern.compile("^-{1,2}"); // leading '-' or '--'
 	private static final Pattern CHAR_SPLITTER = Pattern.compile("(?!^)"); // look-ahead, do not split at '^'
 	private static final Pattern WORD_SPLITTER = Pattern.compile("(?<!^)\\s+"); // look-behind
 
-	static final Comparator<CommandInfo> CMD_COMPARATOR = new Comparator<CommandInfo>() {
-		@Override
-		public int compare(CommandInfo o1, CommandInfo o2) {
-			return o1.anno.name().compareTo(o2.anno.name());
-		}
-	};
+	static final String NEWLINE = "\n";
 
-	static final Comparator<String> OPT_COMPARATOR = new Comparator<String>() {
-		@Override
-		public int compare(String s1, String s2) {
-			return stripOptPrefix(s1).compareTo(stripOptPrefix(s2));
-		}
-	};
-	public static final String NEWLINE = "\n";
+	static final Comparator<CommandInfo> CMD_COMPARATOR = Comparator.comparing(o -> o.anno.name());
+	static final Comparator<String> OPT_COMPARATOR = Comparator.comparing(OptUtils::stripOptPrefix);
 
 	private static String stripOptPrefix(String optStr) {
 		return OPT_PREFIX.matcher(optStr).replaceFirst("");
@@ -97,7 +90,7 @@ class Utils {
 		return CHAR_SPLITTER.split(word);
 	}
 
-	static String[] wsplit(String sentence) { // split to words
+	private static String[] wsplit(String sentence) { // split to words
 		return WORD_SPLITTER.split(sentence);
 	}
 

@@ -16,8 +16,8 @@ class OptionInfo {
 	}
 
 	String help() {
-		String optsText = Utils.formatOpts(anno.opt());
-		String descText = Utils.format(anno.description(), true);
+		String optsText = OptUtils.formatOpts(anno.opt());
+		String descText = OptUtils.format(anno.description(), true);
 		return String.format("%s  %s", optsText, descText);
 	}
 }

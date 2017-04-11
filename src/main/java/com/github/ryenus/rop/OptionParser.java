@@ -1,9 +1,5 @@
 package com.github.ryenus.rop;
 
-import static com.github.ryenus.rop.OptionType.LONG;
-import static com.github.ryenus.rop.OptionType.REVERSE;
-import static com.github.ryenus.rop.OptionType.SHORT;
-
 import java.io.File;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,16 +11,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
+
+import static com.github.ryenus.rop.OptionType.*;
 
 /**
  * Rop - A lightweight command line option parser. It also supports level-two
@@ -93,13 +82,13 @@ public class OptionParser {
 	private void register(Class<?> klass, Object instance) {
 		Command cmdAnno = klass.getAnnotation(Command.class);
 		if (cmdAnno == null) {
-			throw new RuntimeException(String.format("Annotation @Command missing on %s", klass.getName()));
+			throw new OptParseException(String.format("Annotation @Command missing on %s", klass.getName()));
 		}
 
 		String cmdName = cmdAnno.name();
 		CommandInfo existingCmd = byName.get(cmdName);
 		if (existingCmd != null) {
-			throw new RuntimeException(String.format("Unable to register '%s' command with %s, it's already registered by %s",
+			throw new OptParseException(String.format("Unable to register '%s' command with %s, it's already registered by %s",
 					cmdName, klass, existingCmd.command.getClass()));
 		}
 
@@ -119,7 +108,7 @@ public class OptionParser {
 			return constr.newInstance();
 		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException
 			| InvocationTargetException e) {
-			throw new RuntimeException(String.format("Unable to instantiate %s. Please make sure the no-arg constructor exists and is accessible. For an inner class, make sure it's static", klass), e);
+			throw new OptParseException(String.format("Unable to instantiate %s. Please make sure the no-arg constructor exists and is accessible. For an inner class, make sure it's static", klass), e);
 		}
 	}
 
@@ -168,7 +157,7 @@ public class OptionParser {
 	 */
 	public Map<Object, String[]> parse(String[] args, boolean multi) {
 		if (top == null) { // no command registered. nothing to do
-			throw new RuntimeException("No Command registered");
+			throw new OptParseException("No Command registered");
 		}
 
 		Map<Object, String[]> cpm = new LinkedHashMap<>();
@@ -228,7 +217,7 @@ public class OptionParser {
 		cpm.put(ci.command, params.toArray(new String[params.size()]));
 		for (OptionInfo oi : new HashSet<>(ci.map.values())) {
 			if (oi.anno.required() && !oi.set) {
-				throw new RuntimeException(String.format("Required option not found for field %s", oi.field));
+				throw new OptParseException(String.format("Required option not found for field %s", oi.field));
 			}
 		}
 	}
@@ -242,7 +231,7 @@ public class OptionParser {
 	private void parseOpt(String option, ListIterator<String> liter, OptionType optionType) {
 		OptionInfo optionInfo = cci.map.get(option);
 		if (optionInfo == null) {
-			throw new IllegalArgumentException(String.format("Unknown option '%s'", option));
+			throw new OptParseException(String.format("Unknown option '%s'", option));
 		}
 
 		Field field = optionInfo.field;
@@ -256,16 +245,23 @@ public class OptionParser {
 			value = (optionType != REVERSE);
 		} else { // TODO: support arity
 			if (!liter.hasNext()) {
-				throw new IllegalArgumentException(String.format("Argument missing for option '%s%s'", optionType.prefix, option));
+				throw new OptParseException(String.format("Argument missing for option '%s%s'", optionType.prefix, option));
 			}
-			value = parseValue(fieldType, liter.next());
+
+			String rawValue = liter.next();
+			try {
+				value = parseValue(fieldType, rawValue);
+			} catch (Exception e)
+			{
+				throw new OptParseException("Unable to parse '" + rawValue + "' for option '" + field.getName() + "' (" + fieldType.getName() + ")", e);
+			}
 		}
 
 		try {
 			field.set(cci.command, value);
 			optionInfo.set = true;
 		} catch (IllegalArgumentException | IllegalAccessException e) {
-			throw new RuntimeException(e);
+			throw new OptParseException(e);
 		}
 	}
 
@@ -334,7 +330,7 @@ public class OptionParser {
 				}
 			}
 		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			throw new RuntimeException(e);
+			throw new OptParseException(e);
 		}
 	}
 

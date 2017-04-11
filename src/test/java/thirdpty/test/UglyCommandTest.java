@@ -1,12 +1,11 @@
 package thirdpty.test;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
 import com.github.ryenus.rop.OptionParser;
 import com.github.ryenus.rop.OptionParser.Command;
 import com.github.ryenus.rop.OptionParser.Option;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class UglyCommandTest {
 

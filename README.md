@@ -230,7 +230,7 @@ If option '--help' is present, the parser will:
 
 ### Error Handling
 
-Any possible error would be thrown as a RuntimeException, or its subclass, provided with proper error massege. You might want to catch the exception, print the error message and/or the help information before exiting the program. This task is intentionally left to you so that you can control how your program behaves upon parsing errors before terminating.
+Any possible error would be thrown as a OptParseException, or its subclass, provided with proper error massege. You might want to catch the exception, print the error message and/or the help information before exiting the program. This task is intentionally left to you so that you can control how your program behaves upon parsing errors before terminating.
 
 ## Contributing
 

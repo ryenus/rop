@@ -1,12 +1,11 @@
 package thirdpty.test;
 
-import java.util.Arrays;
-
+import com.github.ryenus.rop.OptParseException;
+import com.github.ryenus.rop.OptionParser;
 import org.junit.Test;
-
 import thirdpty.test.negative.NoDefaultConstructor;
 
-import com.github.ryenus.rop.OptionParser;
+import java.util.Arrays;
 
 public class CommandConstructorTest {
 
@@ -20,7 +19,7 @@ public class CommandConstructorTest {
 		parser = new OptionParser(Arrays.asList(new Object[] { PrivateConstructor.class }));
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expected = OptParseException.class)
 	public void badConstructor() {
 		parser = new OptionParser(NoDefaultConstructor.class);
 	}

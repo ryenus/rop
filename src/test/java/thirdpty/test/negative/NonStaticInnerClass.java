@@ -1,13 +1,13 @@
 package thirdpty.test.negative;
 
-import org.junit.Test;
-
+import com.github.ryenus.rop.OptParseException;
 import com.github.ryenus.rop.OptionParser;
 import com.github.ryenus.rop.OptionParser.Command;
+import org.junit.Test;
 
 public class NonStaticInnerClass {
 
-	@Test(expected = RuntimeException.class)
+	@Test(expected = OptParseException.class)
 	public void test() {
 		new OptionParser(NonStaticInnerClassCommand.class);
 	}

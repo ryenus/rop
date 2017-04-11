@@ -1,24 +1,16 @@
 package thirdpty.test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.github.ryenus.rop.OptParseException;
+import com.github.ryenus.rop.OptionParser;
+import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.security.Permission;
 
-import org.junit.Test;
-
-import com.github.ryenus.rop.OptionParser;
+import static org.junit.Assert.*;
 
 public class OptionParserTest {
 	private OptionParser parser;
@@ -57,7 +49,7 @@ public class OptionParserTest {
 		System.setSecurityManager(new SecurityManager() {
 			@Override
 			public void checkExit(int status) {
-				throw new RuntimeException(String.valueOf(status));
+				throw new OptParseException(String.valueOf(status));
 			}
 
 			@Override
@@ -71,7 +63,7 @@ public class OptionParserTest {
 
 		try {
 			parser.parse("--help -b".split("\\s+"));
-		} catch (RuntimeException e) {
+		} catch (OptParseException e) {
 			assertEquals("0", e.getMessage()); // caught exit code
 		}
 
@@ -84,7 +76,7 @@ public class OptionParserTest {
 			byte[] bytes = Files.readAllBytes(new File(uri).toPath());
 			assertArrayEquals(bytes, baos.toByteArray());
 		} catch (IOException | URISyntaxException e) {
-			throw new RuntimeException(e);
+			throw new OptParseException(e);
 		}
 	}
 

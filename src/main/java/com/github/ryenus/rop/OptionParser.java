@@ -170,7 +170,7 @@ public class OptionParser {
 
 			if ("--help".equals(arg)) {
 				showHelp();
-				System.exit(0);
+				return cpm;
 			}
 
 			CommandInfo ci = byName.get(arg);

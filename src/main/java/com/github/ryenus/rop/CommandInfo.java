@@ -50,7 +50,7 @@ class CommandInfo {
 
 	String help(boolean showNotes) {
 		StringBuilder sb = new StringBuilder();
-		String cmdDesc = Utils.format(anno.descriptions(), false);
+		String cmdDesc = OptUtils.format(anno.descriptions(), false);
 		sb.append(cmdDesc);
 
 		List<String> list = new ArrayList<>(map.size());
@@ -60,13 +60,13 @@ class CommandInfo {
 			}
 		}
 
-		Collections.sort(list, Utils.OPT_COMPARATOR);
+		Collections.sort(list, OptUtils.OPT_COMPARATOR);
 		for (String string : list) {
 			sb.append("\n").append(string);
 		}
 
 		if (showNotes) {
-			sb.append(Utils.format(anno.notes(), true));
+			sb.append(OptUtils.format(anno.notes(), true));
 		}
 
 		return sb.toString();

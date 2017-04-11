@@ -24,6 +24,7 @@ class Utils {
 			return stripOptPrefix(s1).compareTo(stripOptPrefix(s2));
 		}
 	};
+	public static final String NEWLINE = "\n";
 
 	private static String stripOptPrefix(String optStr) {
 		return OPT_PREFIX.matcher(optStr).replaceFirst("");
@@ -49,7 +50,7 @@ class Utils {
 		}
 
 		if (optStr.length() > 32) {
-			return String.format("%s\n%32s", optStr, "");
+			return optStr + NEWLINE + String.format("%32s", "");
 		} else {
 			return String.format("%-32s", optStr);
 		}
@@ -60,8 +61,8 @@ class Utils {
 			return "";
 		}
 
-		String prefix = enclosed ? "\n" : "";
-		String suffix = enclosed ? "" : "\n";
+		String prefix = enclosed ? NEWLINE : "";
+		String suffix = enclosed ? "" : NEWLINE;
 
 		StringBuilder sb = new StringBuilder(prefix);
 		for (String sentence : sentences) {
@@ -84,7 +85,7 @@ class Utils {
 			if (line.length() + word.length() <= width) {
 				line.append(word).append(' ');
 			} else {
-				para.append(line.deleteCharAt(line.length() - 1)).append("\n").append(padding);
+				para.append(line.deleteCharAt(line.length() - 1)).append(NEWLINE).append(padding);
 				line = new StringBuilder().append(word).append(' ');
 			}
 		}

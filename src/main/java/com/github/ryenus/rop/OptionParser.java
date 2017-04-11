@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static com.github.ryenus.rop.OptionType.*;
+import static com.github.ryenus.rop.Utils.NEWLINE;
 
 /**
  * Rop - A lightweight command line option parser. It also supports level-two
@@ -238,7 +239,7 @@ public class OptionParser {
 		field.setAccessible(true);
 		Class<?> fieldType = field.getType();
 
-		Object value = null;
+		Object value;
 		if (optionInfo.anno.secret()) {
 			value = Utils.readSecret(optionInfo.anno.prompt());
 		} else if (fieldType == boolean.class || fieldType == Boolean.class) {
@@ -340,18 +341,20 @@ public class OptionParser {
 	 */
 	public void showHelp() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(top.help(false));
-		sb.append(String.format("\n      --help %20s display this help and exit", ""));
+		sb.append(top.help(false)).append(NEWLINE);
+		sb.append(String.format("      --help %20s display this help and exit", ""));
 
 		List<CommandInfo> cmds = new ArrayList<>(byName.values());
 		cmds.remove(top);
-		Collections.sort(cmds, Utils.CMD_COMPARATOR);
+		cmds.sort(Utils.CMD_COMPARATOR);
 		for (CommandInfo ci : cmds) {
-			sb.append(String.format("\n\n[Command '%s']\n\n", ci.anno.name()));
+			sb.append(NEWLINE).append(NEWLINE);
+			sb.append(String.format("[Command '%s']", ci.anno.name()));
+			sb.append(NEWLINE).append(NEWLINE);
 			sb.append(ci.help(true));
 		}
 
-		sb.append(Utils.format(top.anno.notes(), true)).append('\n');
+		sb.append(Utils.format(top.anno.notes(), true)).append(NEWLINE);
 		System.out.print(sb.toString());
 	}
 
@@ -381,7 +384,7 @@ public class OptionParser {
 	 */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface Command {
+	public @interface Command {
 		String name();
 
 		/**
@@ -433,7 +436,7 @@ public class OptionParser {
 	 */
 	@Target(ElementType.FIELD)
 	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface Option {
+	public @interface Option {
 		/**
 		 * The option keys, like {@literal '-f'}, {@literal '--file'}.
 		 *

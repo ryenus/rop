@@ -28,18 +28,18 @@ class CommandInfo {
 				if (optAnno != null) {
 					String[] opts = optAnno.opt();
 					if (opts.length == 0) {
-						throw new RuntimeException(String.format("@Option.opt is empty for '%s'", field));
+						throw new OptParseException(String.format("@Option.opt is empty for '%s'", field));
 					}
 
 					if (optAnno.required() && optAnno.hidden()) {
-						throw new RuntimeException(String.format("Required option '%s' cannot be hidden for '%s'", opts[0], field));
+						throw new OptParseException(String.format("Required option '%s' cannot be hidden for '%s'", opts[0], field));
 					}
 
 					OptionInfo optionInfo = new OptionInfo(field, optAnno);
 					for (String opt : opts) {
 						String key = opt.replaceFirst("^(-)+", "");
 						if (map.containsKey(key)) {
-							throw new RuntimeException(String.format("Conflict option '%s' found in '%s' and '%s'", opt, map.get(key).field, field));
+							throw new OptParseException(String.format("Conflict option '%s' found in '%s' and '%s'", opt, map.get(key).field, field));
 						}
 						map.put(key, optionInfo);
 					}

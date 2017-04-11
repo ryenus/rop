@@ -1,10 +1,10 @@
 package thirdpty.test;
 
-import java.io.File;
-import java.nio.file.Path;
-
 import com.github.ryenus.rop.OptionParser.Command;
 import com.github.ryenus.rop.OptionParser.Option;
+
+import java.io.File;
+import java.nio.file.Path;
 
 @Command(name = "load", descriptions = "The command to demo all the supported wrapper types")
 public class Wrappers {

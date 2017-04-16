@@ -11,12 +11,12 @@ import java.util.Map;
 import com.github.ryenus.rop.OptionParser.Command;
 import com.github.ryenus.rop.OptionParser.Option;
 
-class CommandInfo {
+public class CommandInfo {
 	Object command;
 	Command anno;
 	Map<String, OptionInfo> map;
 
-	CommandInfo(Object command, Command anno) {
+	public CommandInfo(Object command, Command anno) {
 		this.command = command;
 		this.anno = anno;
 
@@ -48,7 +48,19 @@ class CommandInfo {
 		}
 	}
 
-	String help(boolean showNotes) {
+	public Object getCommand() {
+		return command;
+	}
+
+	public Command getAnno() {
+		return anno;
+	}
+
+	public Map<String, OptionInfo> getMap() {
+		return map;
+	}
+
+	public String help(boolean showNotes) {
 		StringBuilder sb = new StringBuilder();
 		String cmdDesc = Utils.format(anno.descriptions(), false);
 		sb.append(cmdDesc);

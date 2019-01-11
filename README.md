@@ -2,7 +2,7 @@
 
 [![Build Status](https://api.travis-ci.org/ryenus/rop.svg?branch=master)](https://travis-ci.org/ryenus/rop)
 [![Stories in Ready](https://badge.waffle.io/ryenus/rop.png?label=ready&title=Ready)](https://waffle.io/ryenus/rop)
-
+[![SonarCloud Status](https://sonarcloud.io/api/project_badges/measure?project=ryenus_rop&metric=alert_status)](https://sonarcloud.io/dashboard?id=ryenus_rop)
 
 A lightweight command line option parser written in Java.
 
@@ -41,7 +41,7 @@ Rop is available as a Maven artifact `com.github.ryenus:rop`. Simply add this to
 </dependency>
 ```
 
-You can always get the latest source code from https://github.com/ryenus/rop.
+You can always get the latest source code from https://github.com/ryenus/rop/.
 
 
 ### Usage Example

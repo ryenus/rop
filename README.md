@@ -248,6 +248,7 @@ Rop is released under the [MIT License](http://www.opensource.org/licenses/MIT).
 
 ## Related projects
 
+* [picocli](https://github.com/remkop/picocli)
 * [java-getopt](https://github.com/arenn/java-getopt)
 * [JOpt Simple](http://pholser.github.com/jopt-simple)
 * [JCommander](https://github.com/cbeust/jcommander)

@@ -35,7 +35,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.release>11</maven.compiler.release>
+		<java.release>11</java.release>
 	</properties>
 
 	<dependencies>
@@ -58,6 +58,7 @@
 						<arg>-verbose</arg>
 						<arg>-Xlint:all,-options,-path</arg>
 					</compilerArgs>
+					<release>${java.release}</release>
 				</configuration>
 			</plugin>
 		</plugins>
